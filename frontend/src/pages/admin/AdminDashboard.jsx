@@ -443,8 +443,9 @@ const AdminDashboard = () => {
           assignedTo: "",
         });
 
+        // 🔥 EXACT REAL FIX BASED ON YOUR DB STRUCTURE
         const team = teams.find(
-          (t) => t.eventId && t.eventId._id === eventId
+          (t) => t.event && t.event.toString() === eventId
         );
 
         if (team && team.members && team.members.length > 0) {
@@ -484,6 +485,7 @@ const AdminDashboard = () => {
     </button>
   </div>
 )}
+
 
 
       {/* ================= EVENTS ================= */}
