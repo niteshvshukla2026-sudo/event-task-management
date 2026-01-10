@@ -1,3 +1,5 @@
+// src/pages/admin/AdminDashboard.jsx
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
@@ -219,7 +221,7 @@ const AdminDashboard = () => {
 
     try {
       await API.post("/teams", {
-        eventId: teamForm.eventId,
+        event: teamForm.eventId, // backend me field "event" hai
         members: teamForm.members,
       });
 
@@ -243,7 +245,13 @@ const AdminDashboard = () => {
     }
 
     try {
-      await API.post("/tasks", { ...taskForm, status: "PENDING" });
+      await API.post("/tasks", {
+        title: taskForm.title,
+        description: taskForm.description,
+        event: taskForm.eventId,
+        assignedTo: taskForm.assignedTo,
+        status: "PENDING",
+      });
 
       setTaskForm({
         title: "",
@@ -407,88 +415,95 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* ================= CREATE TASK ================= */}
- {activeTab === "Create Task" && (
-  <div style={styles.card}>
-    <h2>Create Task</h2>
+      {/* ================= CREATE TASK (FINAL FIXED) ================= */}
+      {activeTab === "Create Task" && (
+        <div style={styles.card}>
+          <h2>Create Task</h2>
 
-    <input
-      style={styles.input}
-      placeholder="Task Title"
-      value={taskForm.title}
-      onChange={(e) =>
-        setTaskForm({ ...taskForm, title: e.target.value })
-      }
-    />
+          <input
+            style={styles.input}
+            placeholder="Task Title"
+            value={taskForm.title}
+            onChange={(e) =>
+              setTaskForm({ ...taskForm, title: e.target.value })
+            }
+          />
 
-    <textarea
-      style={styles.textarea}
-      placeholder="Task Description"
-      value={taskForm.description}
-      onChange={(e) =>
-        setTaskForm({ ...taskForm, description: e.target.value })
-      }
-    />
+          <textarea
+            style={styles.textarea}
+            placeholder="Task Description"
+            value={taskForm.description}
+            onChange={(e) =>
+              setTaskForm({ ...taskForm, description: e.target.value })
+            }
+          />
 
-    {/* Select Event */}
-    <select
-      style={styles.input}
-      value={taskForm.eventId}
-      onChange={(e) => {
-        const eventId = e.target.value;
+          {/* Select Event */}
+          <select
+            style={styles.input}
+            value={taskForm.eventId}
+            onChange={(e) => {
+              const eventId = e.target.value;
 
-        setTaskForm({
-          ...taskForm,
-          eventId,
-          assignedTo: "",
-        });
+              setTaskForm({
+                ...taskForm,
+                eventId,
+                assignedTo: "",
+              });
 
-        const team = teams.find(
-          (t) => t.event && t.event.toString() === eventId
-        );
+              // 🔥 REAL FIX: team.event field handle (ObjectId or populated object)
+              const team = teams.find((t) => {
+                if (!t.event) return false;
 
-        if (team && team.members && team.members.length > 0) {
-          const realUsers = users.filter((u) =>
-            team.members.some((m) => m.toString() === u._id)
-          );
-          setFilteredUsers(realUsers);
-        } else {
-          setFilteredUsers([]);
-        }
-      }}
-    >
-      <option value="">Select Event</option>
-      {events.map((e) => (
-        <option key={e._id} value={e._id}>
-          {e.title}
-        </option>
-      ))}
-    </select>
+                if (typeof t.event === "object" && t.event._id) {
+                  return t.event._id.toString() === eventId;
+                }
 
-    {/* Assign User */}
-    <select
-      style={styles.input}
-      value={taskForm.assignedTo}
-      disabled={!taskForm.eventId}
-      onChange={(e) =>
-        setTaskForm({ ...taskForm, assignedTo: e.target.value })
-      }
-    >
-      <option value="">Assign User</option>
-      {filteredUsers.map((u) => (
-        <option key={u._id} value={u._id}>
-          {u.name}
-        </option>
-      ))}
-    </select>
+                return t.event.toString() === eventId;
+              });
 
-    <button style={styles.button} onClick={createTask}>
-      Create Task
-    </button>
-  </div>
-)}
+              if (team && team.members && team.members.length > 0) {
+                const realUsers = users.filter((u) =>
+                  team.members.some(
+                    (m) => m.toString() === u._id.toString()
+                  )
+                );
+                setFilteredUsers(realUsers);
+              } else {
+                setFilteredUsers([]);
+              }
+            }}
+          >
+            <option value="">Select Event</option>
+            {events.map((e) => (
+              <option key={e._id} value={e._id}>
+                {e.title}
+              </option>
+            ))}
+          </select>
 
+          {/* Assign User */}
+          <select
+            style={styles.input}
+            value={taskForm.assignedTo}
+            disabled={!taskForm.eventId}
+            onChange={(e) =>
+              setTaskForm({ ...taskForm, assignedTo: e.target.value })
+            }
+          >
+            <option value="">Assign User</option>
+            {filteredUsers.map((u) => (
+              <option key={u._id} value={u._id}>
+                {u.name}
+              </option>
+            ))}
+          </select>
 
+          <button style={styles.button} onClick={createTask}>
+            Create Task
+          </button>
+        </div>
+      )}
 
       {/* ================= EVENTS ================= */}
       {activeTab === "Events" &&
