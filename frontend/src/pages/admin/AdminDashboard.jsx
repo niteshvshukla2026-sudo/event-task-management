@@ -1,5 +1,3 @@
-// src/pages/admin/AdminDashboard.jsx
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
@@ -145,7 +143,7 @@ const AdminDashboard = () => {
     assignedTo: "",
   });
 
-  /* ================= AUTH GUARD ================= */
+  /* ================= AUTH + LOAD ================= */
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -155,8 +153,6 @@ const AdminDashboard = () => {
       loadAll();
     }
   }, []);
-
-  /* ================= LOAD ALL DATA ================= */
 
   const loadAll = async () => {
     try {
@@ -192,7 +188,7 @@ const AdminDashboard = () => {
       setUserForm({ name: "", email: "", password: "" });
       loadAll();
       setActiveTab("Overview");
-    } catch (err) {
+    } catch {
       alert("Failed to create user");
     }
   };
@@ -203,44 +199,35 @@ const AdminDashboard = () => {
       setEventForm({ title: "", venue: "", description: "" });
       loadAll();
       setActiveTab("Events");
-    } catch (err) {
+    } catch {
       alert("Failed to create event");
     }
   };
 
   const createTeam = async () => {
     try {
-      await API.post("/teams", {
-        eventId: teamForm.eventId,
-        members: teamForm.members,
-      });
-
+      await API.post("/teams", teamForm);
       setTeamForm({ eventId: "", members: [] });
       loadAll();
       setActiveTab("Overview");
-    } catch (err) {
+    } catch {
       alert("Failed to create team");
     }
   };
 
   const createTask = async () => {
     try {
-      await API.post("/tasks", {
-        ...taskForm,
-        status: "PENDING",
-      });
-
+      await API.post("/tasks", { ...taskForm, status: "PENDING" });
       setTaskForm({
         title: "",
         description: "",
         eventId: "",
         assignedTo: "",
       });
-
       setFilteredUsers([]);
       loadAll();
       setActiveTab("Tasks");
-    } catch (err) {
+    } catch {
       alert("Failed to create task");
     }
   };
@@ -254,7 +241,6 @@ const AdminDashboard = () => {
         <div style={styles.subtitle}>Admin Dashboard</div>
       </div>
 
-      {/* ================= TABS ================= */}
       <div style={styles.tabs}>
         {TABS.map((t) => (
           <button
@@ -428,11 +414,9 @@ const AdminDashboard = () => {
                 assignedTo: "",
               });
 
-              const team = teams.find(
-                (t) => t.event && t.event._id === eventId
-              );
-
-              setFilteredUsers(team ? team.members : []);
+              // 🔥 FIXED PART (NO WHITE SCREEN)
+              const team = teams.find((t) => t.eventId === eventId);
+              setFilteredUsers(team && team.members ? team.members : []);
             }}
           >
             <option value="">Select Event</option>
@@ -483,7 +467,9 @@ const AdminDashboard = () => {
             <p>{t.description}</p>
             <p>
               <strong>Assigned To:</strong>{" "}
-              {t.assignedTo ? t.assignedTo.name : "Not Assigned"}
+              {t.assignedTo && t.assignedTo.name
+                ? t.assignedTo.name
+                : "Not Assigned"}
             </p>
             <p>
               <strong>Status:</strong>{" "}
