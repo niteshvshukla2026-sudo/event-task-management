@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://event-task-management.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_URL + "/api",
 });
 
 // 🔐 TOKEN AUTO ATTACH
