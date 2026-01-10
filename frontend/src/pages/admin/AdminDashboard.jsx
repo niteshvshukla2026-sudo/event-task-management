@@ -409,80 +409,82 @@ const AdminDashboard = () => {
 
       {/* ================= CREATE TASK ================= */}
       {activeTab === "Create Task" && (
-        <div style={styles.card}>
-          <h2>Create Task</h2>
+  <div style={styles.card}>
+    <h2>Create Task</h2>
 
-          <input
-            style={styles.input}
-            placeholder="Task Title"
-            value={taskForm.title}
-            onChange={(e) =>
-              setTaskForm({ ...taskForm, title: e.target.value })
-            }
-          />
+    <input
+      style={styles.input}
+      placeholder="Task Title"
+      value={taskForm.title}
+      onChange={(e) =>
+        setTaskForm({ ...taskForm, title: e.target.value })
+      }
+    />
 
-          <textarea
-            style={styles.textarea}
-            placeholder="Task Description"
-            value={taskForm.description}
-            onChange={(e) =>
-              setTaskForm({ ...taskForm, description: e.target.value })
-            }
-          />
+    <textarea
+      style={styles.textarea}
+      placeholder="Task Description"
+      value={taskForm.description}
+      onChange={(e) =>
+        setTaskForm({ ...taskForm, description: e.target.value })
+      }
+    />
 
-          <select
-            style={styles.input}
-            value={taskForm.eventId}
-            onChange={(e) => {
-              const eventId = e.target.value;
+    {/* Select Event */}
+    <select
+      style={styles.input}
+      value={taskForm.eventId}
+      onChange={(e) => {
+        const eventId = e.target.value;
 
-              setTaskForm({
-                ...taskForm,
-                eventId,
-                assignedTo: "",
-              });
+        setTaskForm({
+          ...taskForm,
+          eventId,
+          assignedTo: "",
+        });
 
-              const team = teams.find((t) => t.eventId === eventId);
+        const team = teams.find(
+          (t) => t.eventId && t.eventId._id === eventId
+        );
 
-              if (team && team.members) {
-                const teamUsers = users.filter((u) =>
-                  team.members.includes(u._id)
-                );
-                setFilteredUsers(teamUsers);
-              } else {
-                setFilteredUsers([]);
-              }
-            }}
-          >
-            <option value="">Select Event</option>
-            {events.map((e) => (
-              <option key={e._id} value={e._id}>
-                {e.title}
-              </option>
-            ))}
-          </select>
+        if (team && team.members && team.members.length > 0) {
+          setFilteredUsers(team.members);
+        } else {
+          setFilteredUsers([]);
+        }
+      }}
+    >
+      <option value="">Select Event</option>
+      {events.map((e) => (
+        <option key={e._id} value={e._id}>
+          {e.title}
+        </option>
+      ))}
+    </select>
 
-          <select
-            style={styles.input}
-            value={taskForm.assignedTo}
-            disabled={!taskForm.eventId}
-            onChange={(e) =>
-              setTaskForm({ ...taskForm, assignedTo: e.target.value })
-            }
-          >
-            <option value="">Assign User</option>
-            {filteredUsers.map((u) => (
-              <option key={u._id} value={u._id}>
-                {u.name}
-              </option>
-            ))}
-          </select>
+    {/* Assign User */}
+    <select
+      style={styles.input}
+      value={taskForm.assignedTo}
+      disabled={!taskForm.eventId}
+      onChange={(e) =>
+        setTaskForm({ ...taskForm, assignedTo: e.target.value })
+      }
+    >
+      <option value="">Assign User</option>
+      {filteredUsers.map((u) => (
+        <option key={u._id} value={u._id}>
+          {u.name}
+        </option>
+      ))}
+    </select>
 
-          <button style={styles.button} onClick={createTask}>
-            Create Task
-          </button>
-        </div>
-      )}
+    <button style={styles.button} onClick={createTask}>
+      Create Task
+    </button>
+  </div>
+)}
+
 
       {/* ================= EVENTS ================= */}
       {activeTab === "Events" &&
