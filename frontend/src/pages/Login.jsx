@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import API from "../services/api"; 
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -20,10 +20,11 @@ const Login = () => {
     try {
       if (isLogin) {
         // ================= LOGIN =================
-        const res = await axios.post("http://localhost:5000/api/auth/login", {
-          email,
-          password,
-        });
+       const res = await API.post("/auth/login", {
+  email,
+  password,
+});
+
 
         // 🔐 Save token and role
         localStorage.setItem("token", res.data.token);
