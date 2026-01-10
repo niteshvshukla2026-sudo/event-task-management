@@ -408,7 +408,7 @@ const AdminDashboard = () => {
       )}
 
       {/* ================= CREATE TASK ================= */}
-      {activeTab === "Create Task" && (
+ {activeTab === "Create Task" && (
   <div style={styles.card}>
     <h2>Create Task</h2>
 
@@ -443,13 +443,15 @@ const AdminDashboard = () => {
           assignedTo: "",
         });
 
-        // 🔥 EXACT REAL FIX BASED ON YOUR DB STRUCTURE
         const team = teams.find(
           (t) => t.event && t.event.toString() === eventId
         );
 
         if (team && team.members && team.members.length > 0) {
-          setFilteredUsers(team.members);
+          const realUsers = users.filter((u) =>
+            team.members.some((m) => m.toString() === u._id)
+          );
+          setFilteredUsers(realUsers);
         } else {
           setFilteredUsers([]);
         }
