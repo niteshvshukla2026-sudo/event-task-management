@@ -1,4 +1,7 @@
+// src/pages/admin/AdminDashboard.jsx
+
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
 
 /* ================= STYLES ================= */
@@ -106,6 +109,8 @@ const TABS = [
 /* ================= COMPONENT ================= */
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState("Overview");
   const [events, setEvents] = useState([]);
   const [users, setUsers] = useState([]);
@@ -140,11 +145,18 @@ const AdminDashboard = () => {
     assignedTo: "",
   });
 
-  /* ================= LOAD ALL DATA ================= */
+  /* ================= AUTH GUARD ================= */
 
   useEffect(() => {
-    loadAll();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+    } else {
+      loadAll();
+    }
   }, []);
+
+  /* ================= LOAD ALL DATA ================= */
 
   const loadAll = async () => {
     try {
@@ -163,7 +175,12 @@ const AdminDashboard = () => {
       setTeams(tm.data || []);
     } catch (err) {
       console.error(err);
-      setError("Failed to load admin data");
+      if (err.response?.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+      } else {
+        setError("Failed to load admin data");
+      }
     }
   };
 
