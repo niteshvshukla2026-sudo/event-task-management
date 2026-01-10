@@ -1,5 +1,3 @@
-// src/pages/admin/AdminDashboard.jsx
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
@@ -112,10 +110,12 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("Overview");
+
   const [events, setEvents] = useState([]);
   const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [teams, setTeams] = useState([]);
+
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [error, setError] = useState("");
 
@@ -187,6 +187,7 @@ const AdminDashboard = () => {
   const createUser = async () => {
     try {
       await API.post("/users", userForm);
+      alert("User created");
       setUserForm({ name: "", email: "", password: "" });
       loadAll();
       setActiveTab("Overview");
@@ -199,6 +200,7 @@ const AdminDashboard = () => {
   const createEvent = async () => {
     try {
       await API.post("/events", eventForm);
+      alert("Event created");
       setEventForm({ title: "", venue: "", description: "" });
       loadAll();
       setActiveTab("Events");
@@ -208,24 +210,30 @@ const AdminDashboard = () => {
     }
   };
 
+  // 🔥 FINAL FIXED CREATE TEAM
   const createTeam = async () => {
     if (!teamForm.eventId) {
-      alert("Please select event");
+      alert("Select event");
       return;
     }
-
     if (teamForm.members.length === 0) {
-      alert("Select at least one user");
+      alert("Select at least one member");
       return;
     }
 
     try {
       await API.post("/teams", {
-        event: teamForm.eventId, // backend me field "event" hai
+        event: teamForm.eventId,       // IMPORTANT: eventId → event
         members: teamForm.members,
       });
 
-      setTeamForm({ eventId: "", members: [] });
+      alert("Team created successfully");
+
+      setTeamForm({
+        eventId: "",
+        members: [],
+      });
+
       loadAll();
       setActiveTab("Overview");
     } catch (err) {
@@ -234,7 +242,12 @@ const AdminDashboard = () => {
     }
   };
 
+  // 🔥 FINAL FIXED CREATE TASK
   const createTask = async () => {
+    if (!taskForm.title || !taskForm.description) {
+      alert("Title & description required");
+      return;
+    }
     if (!taskForm.eventId) {
       alert("Select event");
       return;
@@ -246,12 +259,11 @@ const AdminDashboard = () => {
 
     try {
       await API.post("/tasks", {
-        title: taskForm.title,
-        description: taskForm.description,
-        event: taskForm.eventId,
-        assignedTo: taskForm.assignedTo,
+        ...taskForm,
         status: "PENDING",
       });
+
+      alert("Task created successfully");
 
       setTaskForm({
         title: "",
@@ -259,6 +271,7 @@ const AdminDashboard = () => {
         eventId: "",
         assignedTo: "",
       });
+
       setFilteredUsers([]);
       loadAll();
       setActiveTab("Tasks");
@@ -300,6 +313,7 @@ const AdminDashboard = () => {
           <div style={styles.card}>Total Events: {events.length}</div>
           <div style={styles.card}>Total Users: {users.length}</div>
           <div style={styles.card}>Total Tasks: {tasks.length}</div>
+          <div style={styles.card}>Total Teams: {teams.length}</div>
         </div>
       )}
 
@@ -325,8 +339,8 @@ const AdminDashboard = () => {
           />
           <input
             style={styles.input}
-            placeholder="Password"
             type="password"
+            placeholder="Password"
             value={userForm.password}
             onChange={(e) =>
               setUserForm({ ...userForm, password: e.target.value })
@@ -344,7 +358,7 @@ const AdminDashboard = () => {
           <h2>Create Event</h2>
           <input
             style={styles.input}
-            placeholder="Event Name"
+            placeholder="Event Title"
             value={eventForm.title}
             onChange={(e) =>
               setEventForm({ ...eventForm, title: e.target.value })
@@ -415,7 +429,7 @@ const AdminDashboard = () => {
         </div>
       )}
 
-      {/* ================= CREATE TASK (FINAL FIXED) ================= */}
+      {/* ================= CREATE TASK ================= */}
       {activeTab === "Create Task" && (
         <div style={styles.card}>
           <h2>Create Task</h2>
@@ -451,22 +465,14 @@ const AdminDashboard = () => {
                 assignedTo: "",
               });
 
-              // 🔥 REAL FIX: team.event field handle (ObjectId or populated object)
-              const team = teams.find((t) => {
-                if (!t.event) return false;
-
-                if (typeof t.event === "object" && t.event._id) {
-                  return t.event._id.toString() === eventId;
-                }
-
-                return t.event.toString() === eventId;
-              });
+              // 🔥 REAL FIX: DB me team ka field "event" hota hai
+              const team = teams.find(
+                (t) => t.event && t.event.toString() === eventId
+              );
 
               if (team && team.members && team.members.length > 0) {
                 const realUsers = users.filter((u) =>
-                  team.members.some(
-                    (m) => m.toString() === u._id.toString()
-                  )
+                  team.members.some((m) => m.toString() === u._id)
                 );
                 setFilteredUsers(realUsers);
               } else {
@@ -523,9 +529,7 @@ const AdminDashboard = () => {
             <p>{t.description}</p>
             <p>
               <strong>Assigned To:</strong>{" "}
-              {t.assignedTo && t.assignedTo.name
-                ? t.assignedTo.name
-                : "Not Assigned"}
+              {t.assignedTo?.name || "Not Assigned"}
             </p>
             <p>
               <strong>Status:</strong>{" "}
