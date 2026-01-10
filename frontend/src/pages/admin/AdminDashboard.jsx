@@ -188,8 +188,9 @@ const AdminDashboard = () => {
       setUserForm({ name: "", email: "", password: "" });
       loadAll();
       setActiveTab("Overview");
-    } catch {
-      alert("Failed to create user");
+    } catch (err) {
+      console.error(err.response?.data);
+      alert(err.response?.data?.message || "Failed to create user");
     }
   };
 
@@ -199,25 +200,51 @@ const AdminDashboard = () => {
       setEventForm({ title: "", venue: "", description: "" });
       loadAll();
       setActiveTab("Events");
-    } catch {
-      alert("Failed to create event");
+    } catch (err) {
+      console.error(err.response?.data);
+      alert(err.response?.data?.message || "Failed to create event");
     }
   };
 
   const createTeam = async () => {
+    if (!teamForm.eventId) {
+      alert("Please select event");
+      return;
+    }
+
+    if (teamForm.members.length === 0) {
+      alert("Select at least one user");
+      return;
+    }
+
     try {
-      await API.post("/teams", teamForm);
+      await API.post("/teams", {
+        eventId: teamForm.eventId,
+        members: teamForm.members,
+      });
+
       setTeamForm({ eventId: "", members: [] });
       loadAll();
       setActiveTab("Overview");
-    } catch {
-      alert("Failed to create team");
+    } catch (err) {
+      console.error(err.response?.data);
+      alert(err.response?.data?.message || "Failed to create team");
     }
   };
 
   const createTask = async () => {
+    if (!taskForm.eventId) {
+      alert("Select event");
+      return;
+    }
+    if (!taskForm.assignedTo) {
+      alert("Assign a user");
+      return;
+    }
+
     try {
       await API.post("/tasks", { ...taskForm, status: "PENDING" });
+
       setTaskForm({
         title: "",
         description: "",
@@ -227,8 +254,9 @@ const AdminDashboard = () => {
       setFilteredUsers([]);
       loadAll();
       setActiveTab("Tasks");
-    } catch {
-      alert("Failed to create task");
+    } catch (err) {
+      console.error(err.response?.data);
+      alert(err.response?.data?.message || "Failed to create task");
     }
   };
 
@@ -414,9 +442,16 @@ const AdminDashboard = () => {
                 assignedTo: "",
               });
 
-              // 🔥 FIXED PART (NO WHITE SCREEN)
               const team = teams.find((t) => t.eventId === eventId);
-              setFilteredUsers(team && team.members ? team.members : []);
+
+              if (team && team.members) {
+                const teamUsers = users.filter((u) =>
+                  team.members.includes(u._id)
+                );
+                setFilteredUsers(teamUsers);
+              } else {
+                setFilteredUsers([]);
+              }
             }}
           >
             <option value="">Select Event</option>
