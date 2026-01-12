@@ -21,14 +21,15 @@ router.get("/", auth, async (req, res) => {
 /* ================= CREATE EVENT TEAM ================= */
 router.post("/", auth, async (req, res) => {
   try {
-    const { eventId, members } = req.body;
+    // 🔥 Frontend se { event, members } aa raha hai
+    const { event, members } = req.body;
 
-    if (!eventId || !Array.isArray(members)) {
+    if (!event || !Array.isArray(members) || members.length === 0) {
       return res.status(400).json({ message: "Event & members required" });
     }
 
     // 🔒 prevent duplicate team for same event
-    const already = await EventTeam.findOne({ event: eventId });
+    const already = await EventTeam.findOne({ event });
     if (already) {
       return res
         .status(400)
@@ -36,8 +37,8 @@ router.post("/", auth, async (req, res) => {
     }
 
     const team = await EventTeam.create({
-      event: eventId, // ✅ FIXED HERE
-      members,
+      event,       // event id
+      members,     // array of user ids
     });
 
     res.status(201).json(team);
@@ -51,7 +52,7 @@ router.post("/", auth, async (req, res) => {
 router.get("/event/:eventId/members", auth, async (req, res) => {
   try {
     const team = await EventTeam.findOne({
-      event: req.params.eventId, // ✅ FIXED
+      event: req.params.eventId,
     }).populate("members", "name email");
 
     if (!team) return res.json([]);
