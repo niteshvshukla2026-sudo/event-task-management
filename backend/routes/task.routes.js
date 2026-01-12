@@ -12,18 +12,17 @@ router.post("/", auth, async (req, res) => {
   try {
     const { title, description, eventId, assignedTo } = req.body;
 
-    // 1. Basic validation
     if (!title || !description || !eventId || !assignedTo) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // 2. Team must exist for this event
+    // Team check
     const team = await EventTeam.findOne({ event: eventId });
     if (!team) {
       return res.status(400).json({ message: "Team not found for this event" });
     }
 
-    // 3. Assigned user must be team member
+    // Assigned user must be in team
     const isAssigneeInTeam = team.members.some(
       (m) => m.toString() === assignedTo.toString()
     );
@@ -34,33 +33,34 @@ router.post("/", auth, async (req, res) => {
         .json({ message: "Assigned user must be a team member" });
     }
 
-    // 4. Logged-in user must be team member
+    // 🔥 Admin OR team member can assign
     const isAssignerInTeam = team.members.some(
-      (m) => m.toString() === req.user.toString()
+      (m) => m.toString() === req.user.id.toString()
     );
 
-    if (!isAssignerInTeam) {
+    if (req.user.role !== "admin" && !isAssignerInTeam) {
       return res.status(403).json({
         message: "Only team members can assign tasks",
       });
     }
 
-    // 5. Create task
+    // Create task
     const task = await Task.create({
       title,
       description,
       eventId,
       assignedTo,
-      assignedBy: req.user, // 🔥 DIRECT ID
+      assignedBy: req.user.id,   // 🔥 correct
       status: "PENDING",
     });
 
     res.status(201).json(task);
   } catch (err) {
-    console.error("CREATE TASK ERROR FULL:", err);
+    console.error("CREATE TASK ERROR:", err);
     res.status(500).json({ message: "Failed to create task" });
   }
 });
+
 
 /* ================= ADMIN: GET ALL TASKS ================= */
 router.get("/", auth, async (req, res) => {
