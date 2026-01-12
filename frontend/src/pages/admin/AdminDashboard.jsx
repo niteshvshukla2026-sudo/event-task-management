@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
 
+
 /* ================= STYLES ================= */
 
 const styles = {
@@ -430,10 +431,11 @@ const AdminDashboard = () => {
       )}
 
       {/* ================= CREATE TASK ================= */}
-     {activeTab === "Create Task" && (
+    {activeTab === "Create Task" && (
   <div style={styles.card}>
     <h2>Create Task</h2>
 
+    {/* Task Title */}
     <input
       style={styles.input}
       placeholder="Task Title"
@@ -443,6 +445,7 @@ const AdminDashboard = () => {
       }
     />
 
+    {/* Task Description */}
     <textarea
       style={styles.textarea}
       placeholder="Task Description"
@@ -465,19 +468,13 @@ const AdminDashboard = () => {
           assignedTo: "",
         });
 
-        // 🔥 Backend se event populated object aa raha hai
-        const team = teams.find((t) => {
-          if (!t.event) return false;
-          return t.event._id === eventId;
-        });
-
-        console.log("Selected Event ID:", eventId);
-        console.log("Found Team:", team);
+        // 🔥 FINAL SAFE MATCH (ObjectId + string dono handle karega)
+        const team = teams.find(
+          (t) => t.event && t.event._id.toString() === eventId.toString()
+        );
 
         if (team && team.members && team.members.length > 0) {
-          // members already user objects hain
           setFilteredUsers(team.members);
-          console.log("Filtered Users:", team.members);
         } else {
           setFilteredUsers([]);
         }
@@ -508,11 +505,13 @@ const AdminDashboard = () => {
       ))}
     </select>
 
+    {/* Create Button */}
     <button style={styles.button} onClick={createTask}>
       Create Task
     </button>
   </div>
 )}
+
 
 
       {/* ================= EVENTS ================= */}
