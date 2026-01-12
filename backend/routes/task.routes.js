@@ -33,16 +33,17 @@ router.post("/", auth, async (req, res) => {
         .json({ message: "Assigned user must be a team member" });
     }
 
-    // 🔥 Admin OR team member can assign
-    const isAssignerInTeam = team.members.some(
-      (m) => m.toString() === req.user.id.toString()
-    );
+   // 4. Only admin OR team member can assign task
+const isAssignerInTeam = team.members.some(
+  (m) => m.toString() === req.user.id.toString()
+);
 
-    if (req.user.role !== "admin" && !isAssignerInTeam) {
-      return res.status(403).json({
-        message: "Only team members can assign tasks",
-      });
-    }
+if (req.user.role.toLowerCase() !== "admin" && !isAssignerInTeam) {
+  return res.status(403).json({
+    message: "Only team members can assign tasks",
+  });
+}
+
 
     // Create task
     const task = await Task.create({
