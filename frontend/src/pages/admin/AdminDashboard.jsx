@@ -2,6 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../../services/api";
 
+const formatDate = (date) =>
+  new Date(date).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
 
 /* ================= STYLES ================= */
 
@@ -119,6 +128,8 @@ const AdminDashboard = () => {
 
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [error, setError] = useState("");
+const [eventFilter, setEventFilter] = useState("NEWEST"); 
+const [taskFilter, setTaskFilter] = useState("OLDEST");
 
   /* ================= FORMS ================= */
 
@@ -355,37 +366,47 @@ const AdminDashboard = () => {
 
       {/* ================= CREATE EVENT ================= */}
       {activeTab === "Create Event" && (
-        <div style={styles.card}>
-          <h2>Create Event</h2>
-          <input
-            style={styles.input}
-            placeholder="Event Title"
-            value={eventForm.title}
-            onChange={(e) =>
-              setEventForm({ ...eventForm, title: e.target.value })
-            }
-          />
-          <input
-            style={styles.input}
-            placeholder="Venue"
-            value={eventForm.venue}
-            onChange={(e) =>
-              setEventForm({ ...eventForm, venue: e.target.value })
-            }
-          />
-          <textarea
-            style={styles.textarea}
-            placeholder="Description"
-            value={eventForm.description}
-            onChange={(e) =>
-              setEventForm({ ...eventForm, description: e.target.value })
-            }
-          />
-          <button style={styles.button} onClick={createEvent}>
-            Create Event
-          </button>
-        </div>
-      )}
+  <div style={styles.card}>
+    <h2>Create Event</h2>
+
+    <input
+      style={styles.input}
+      placeholder="Event Title"
+      value={eventForm.title}
+      onChange={(e) =>
+        setEventForm({ ...eventForm, title: e.target.value })
+      }
+    />
+
+    <input
+      style={styles.input}
+      placeholder="Venue"
+      value={eventForm.venue}
+      onChange={(e) =>
+        setEventForm({ ...eventForm, venue: e.target.value })
+      }
+    />
+
+    <textarea
+      style={styles.textarea}
+      placeholder="Description"
+      value={eventForm.description}
+      onChange={(e) =>
+        setEventForm({ ...eventForm, description: e.target.value })
+      }
+    />
+
+    {/* Time will be auto captured by backend using timestamps */}
+    <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "6px" }}>
+      📅 Event date & time will be saved automatically.
+    </p>
+
+    <button style={styles.button} onClick={createEvent}>
+      Create Event
+    </button>
+  </div>
+)}
+
 
       {/* ================= CREATE EVENT TEAM ================= */}
       {activeTab === "Create Event Team" && (
@@ -431,7 +452,7 @@ const AdminDashboard = () => {
       )}
 
       {/* ================= CREATE TASK ================= */}
-    {activeTab === "Create Task" && (
+   {activeTab === "Create Task" && (
   <div style={styles.card}>
     <h2>Create Task</h2>
 
@@ -468,7 +489,7 @@ const AdminDashboard = () => {
           assignedTo: "",
         });
 
-        // 🔥 FINAL SAFE MATCH (ObjectId + string dono handle karega)
+        // 🔥 Event ke basis pe team nikalna
         const team = teams.find(
           (t) => t.event && t.event._id.toString() === eventId.toString()
         );
@@ -505,6 +526,11 @@ const AdminDashboard = () => {
       ))}
     </select>
 
+    {/* Info about Time */}
+    <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "6px" }}>
+      ⏰ Task date & time will be saved automatically.
+    </p>
+
     {/* Create Button */}
     <button style={styles.button} onClick={createTask}>
       Create Task
@@ -515,33 +541,88 @@ const AdminDashboard = () => {
 
 
       {/* ================= EVENTS ================= */}
-      {activeTab === "Events" &&
-        events.map((e) => (
-          <div key={e._id} style={styles.card}>
-            <h3>{e.title}</h3>
-            <p>{e.venue}</p>
-            <p>{e.description}</p>
-          </div>
-        ))}
+     {/* ================= EVENTS ================= */}
+{activeTab === "Events" && (
+  <>
+    {/* Event Filter */}
+    <select
+      style={styles.input}
+      value={eventFilter}
+      onChange={(e) => setEventFilter(e.target.value)}
+    >
+      <option value="NEWEST">Newest to Oldest</option>
+      <option value="OLDEST">Oldest to Newest</option>
+    </select>
+
+    {[...events]
+      .sort((a, b) =>
+        eventFilter === "NEWEST"
+          ? new Date(b.createdAt) - new Date(a.createdAt)
+          : new Date(a.createdAt) - new Date(b.createdAt)
+      )
+      .map((e) => (
+        <div key={e._id} style={styles.card}>
+          <h3>{e.title}</h3>
+          <p>{e.venue}</p>
+          <p>{e.description}</p>
+          <p>
+            <strong>Created:</strong> {formatDate(e.createdAt)}
+          </p>
+        </div>
+      ))}
+  </>
+)}
 
       {/* ================= TASKS ================= */}
-      {activeTab === "Tasks" &&
-        tasks.map((t) => (
-          <div key={t._id} style={styles.card}>
-            <h3>{t.title}</h3>
-            <p>{t.description}</p>
-            <p>
-              <strong>Assigned To:</strong>{" "}
-              {t.assignedTo?.name || "Not Assigned"}
-            </p>
-            <p>
-              <strong>Status:</strong>{" "}
-              <span style={styles.badge(t.status || "PENDING")}>
-                {t.status || "PENDING"}
-              </span>
-            </p>
-          </div>
-        ))}
+      {activeTab === "Tasks" && (
+        <>
+         {/* 🔥 ADD THIS DROPDOWN HERE */}
+    <select
+      style={styles.input}
+      value={taskFilter}
+      onChange={(e) => setTaskFilter(e.target.value)}
+    >
+      <option value="OLDEST">Oldest to Newest</option>
+      <option value="NEWEST">Newest to Oldest</option>
+      <option value="PENDING">Pending</option>
+      <option value="COMPLETED">Completed</option>
+    </select>
+          {[...tasks]
+            .filter((t) => {
+              if (taskFilter === "PENDING") return t.status === "PENDING";
+              if (taskFilter === "COMPLETED") return t.status === "COMPLETED";
+              return true;
+            })
+            .sort((a, b) => {
+              if (taskFilter === "NEWEST")
+                return new Date(b.createdAt) - new Date(a.createdAt);
+              return new Date(a.createdAt) - new Date(b.createdAt);
+            })
+            .map((t) => (
+              <div key={t._id} style={styles.card}>
+                <h3>{t.title}</h3>
+                <p>{t.description}</p>
+
+                <p>
+                  <strong>Assigned To:</strong>{" "}
+                  {t.assignedTo?.name || "Not Assigned"}
+                </p>
+
+                <p>
+                  <strong>Status:</strong>{" "}
+                  <span style={styles.badge(t.status || "PENDING")}>
+                    {t.status || "PENDING"}
+                  </span>
+                </p>
+
+                <p>
+                  <strong>Created:</strong> {formatDate(t.createdAt)}
+                </p>
+              </div>
+            ))}
+        </>
+      )}
+
     </div>
   );
 };
