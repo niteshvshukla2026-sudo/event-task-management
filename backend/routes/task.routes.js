@@ -10,17 +10,26 @@ router.post("/", auth, async (req, res) => {
   try {
     const { title, description, eventId, assignedTo } = req.body;
 
-    // 🔐 Check team
+    if (!title || !description || !eventId || !assignedTo) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // 🔐 Check team exists for event
     const team = await EventTeam.findOne({ event: eventId });
     if (!team) {
       return res.status(400).json({ message: "Team not found for event" });
     }
 
-    // 🔐 Check both users are in same team
-    if (
-      !team.members.includes(req.user.id) ||
-      !team.members.includes(assignedTo)
-    ) {
+    // 🔥 ObjectId safe comparison (MAIN FIX)
+    const isAssignerInTeam = team.members.some(
+      (m) => m.toString() === req.user.id.toString()
+    );
+
+    const isAssigneeInTeam = team.members.some(
+      (m) => m.toString() === assignedTo.toString()
+    );
+
+    if (!isAssignerInTeam || !isAssigneeInTeam) {
       return res
         .status(403)
         .json({ message: "Only team members can assign tasks" });
@@ -31,7 +40,8 @@ router.post("/", auth, async (req, res) => {
       description,
       eventId,
       assignedTo,
-      assignedBy: req.user.id, // 🔥 IMPORTANT
+      assignedBy: req.user.id,
+      status: "PENDING",
     });
 
     res.status(201).json(task);
@@ -43,38 +53,57 @@ router.post("/", auth, async (req, res) => {
 
 /* ================= ADMIN: GET ALL TASKS ================= */
 router.get("/", auth, async (req, res) => {
-  const tasks = await Task.find()
-    .populate("eventId", "title")
-    .populate("assignedTo", "name")
-    .populate("assignedBy", "name");
+  try {
+    const tasks = await Task.find()
+      .populate("eventId", "title")
+      .populate("assignedTo", "name")
+      .populate("assignedBy", "name");
 
-  res.json(tasks);
+    res.json(tasks);
+  } catch (err) {
+    console.error("GET TASKS ERROR:", err);
+    res.status(500).json({ message: "Failed to fetch tasks" });
+  }
 });
 
 /* ================= USER: MY TASKS ================= */
 router.get("/my", auth, async (req, res) => {
-  const tasks = await Task.find({ assignedTo: req.user.id })
-    .populate("eventId", "title")
-    .populate("assignedBy", "name");
+  try {
+    const tasks = await Task.find({ assignedTo: req.user.id })
+      .populate("eventId", "title")
+      .populate("assignedBy", "name");
 
-  res.json(tasks);
+    res.json(tasks);
+  } catch (err) {
+    console.error("GET MY TASKS ERROR:", err);
+    res.status(500).json({ message: "Failed to fetch my tasks" });
+  }
 });
 
 /* ================= UPDATE STATUS ================= */
 router.patch("/:id/status", auth, async (req, res) => {
-  const task = await Task.findById(req.params.id);
+  try {
+    const task = await Task.findById(req.params.id);
 
-  // 🔒 once completed, cannot go back
-  if (task.status === "COMPLETED") {
-    return res
-      .status(400)
-      .json({ message: "Completed task cannot be changed" });
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    // 🔒 once completed, cannot go back
+    if (task.status === "COMPLETED") {
+      return res
+        .status(400)
+        .json({ message: "Completed task cannot be changed" });
+    }
+
+    task.status = "COMPLETED";
+    await task.save();
+
+    res.json(task);
+  } catch (err) {
+    console.error("UPDATE STATUS ERROR:", err);
+    res.status(500).json({ message: "Failed to update task status" });
   }
-
-  task.status = "COMPLETED";
-  await task.save();
-
-  res.json(task);
 });
 
 export default router;
