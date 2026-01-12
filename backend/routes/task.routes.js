@@ -23,7 +23,7 @@ router.post("/", auth, async (req, res) => {
       return res.status(400).json({ message: "Team not found for this event" });
     }
 
-    // 3. Check if assignee is in the team
+    // 3. Assigned user must be team member
     const isAssigneeInTeam = team.members.some(
       (m) => m.toString() === assignedTo.toString()
     );
@@ -34,30 +34,30 @@ router.post("/", auth, async (req, res) => {
         .json({ message: "Assigned user must be a team member" });
     }
 
-    // 4. Only admin OR team member can assign task
+    // 4. Logged-in user must be team member
     const isAssignerInTeam = team.members.some(
-      (m) => m.toString() === req.user._id.toString()
+      (m) => m.toString() === req.user.toString()
     );
 
-    if (req.user.role !== "admin" && !isAssignerInTeam) {
+    if (!isAssignerInTeam) {
       return res.status(403).json({
         message: "Only team members can assign tasks",
       });
     }
 
-    // 5. Create Task
+    // 5. Create task
     const task = await Task.create({
       title,
       description,
       eventId,
       assignedTo,
-      assignedBy: req.user._id, // 🔥 Always logged in user
+      assignedBy: req.user, // 🔥 DIRECT ID
       status: "PENDING",
     });
 
     res.status(201).json(task);
   } catch (err) {
-    console.error("CREATE TASK ERROR:", err);
+    console.error("CREATE TASK ERROR FULL:", err);
     res.status(500).json({ message: "Failed to create task" });
   }
 });
@@ -69,7 +69,7 @@ router.get("/", auth, async (req, res) => {
       .populate("eventId", "title venue")
       .populate("assignedTo", "name email")
       .populate("assignedBy", "name email")
-      .sort({ createdAt: 1 }); // Oldest → Newest
+      .sort({ createdAt: 1 });
 
     res.json(tasks);
   } catch (err) {
@@ -81,10 +81,10 @@ router.get("/", auth, async (req, res) => {
 /* ================= USER: MY TASKS ================= */
 router.get("/my", auth, async (req, res) => {
   try {
-    const tasks = await Task.find({ assignedTo: req.user._id })
+    const tasks = await Task.find({ assignedTo: req.user })
       .populate("eventId", "title venue")
       .populate("assignedBy", "name email")
-      .sort({ createdAt: -1 }); // Newest → Oldest for user
+      .sort({ createdAt: -1 });
 
     res.json(tasks);
   } catch (err) {
@@ -102,7 +102,6 @@ router.patch("/:id/status", auth, async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // 🔒 Once completed, cannot be changed again
     if (task.status === "COMPLETED") {
       return res
         .status(400)
