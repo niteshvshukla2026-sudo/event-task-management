@@ -1,7 +1,18 @@
 import React, { useEffect, useState } from "react";
 import API from "../../services/api";
 
-/* ================= STYLES (SINGLE FILE) ================= */
+/* ================= HELPERS ================= */
+
+const formatDate = (date) =>
+  new Date(date).toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+/* ================= STYLES ================= */
 
 const styles = {
   page: {
@@ -26,6 +37,13 @@ const styles = {
     marginTop: "10px",
     fontSize: "16px",
     fontWeight: "600",
+  },
+  filter: {
+    width: "100%",
+    padding: "10px",
+    borderRadius: "8px",
+    border: "1px solid #ddd",
+    marginBottom: "16px",
   },
   card: {
     background: "white",
@@ -52,6 +70,11 @@ const styles = {
     marginTop: "10px",
     fontWeight: "600",
   },
+  date: {
+    marginTop: "6px",
+    fontSize: "12px",
+    color: "#6b7280",
+  },
   btnRow: {
     display: "flex",
     gap: "10px",
@@ -63,9 +86,6 @@ const styles = {
     border: "none",
     cursor: "pointer",
     fontSize: "13px",
-  },
-  pending: {
-    background: "#fde68a",
   },
   completed: {
     background: "#22c55e",
@@ -83,6 +103,7 @@ const styles = {
 const UserDashboard = () => {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [taskFilter, setTaskFilter] = useState("OLDEST"); // default: Oldest → Newest
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -99,6 +120,7 @@ const UserDashboard = () => {
       setUser(userRes.data);
       setTasks(taskRes.data);
     } catch (err) {
+      console.error(err);
       setError("Failed to load user data");
     }
   };
@@ -110,59 +132,89 @@ const UserDashboard = () => {
         status: "COMPLETED",
       });
       loadUserAndTasks();
-    } catch {
+    } catch (err) {
+      console.error(err);
       alert("Failed to update task status");
     }
   };
 
   return (
     <div style={styles.page}>
-      {/* Header */}
+      {/* ================= HEADER ================= */}
       <div style={styles.header}>
         <div style={styles.logo}>triptadka</div>
         <div style={styles.subtitle}>User Dashboard</div>
 
         {user && (
           <div style={styles.userName}>
-            👋 Welcome, <span style={{ color: "#e53935" }}>{user.name}</span>
+            👋 Welcome,{" "}
+            <span style={{ color: "#e53935" }}>{user.name}</span>
           </div>
         )}
       </div>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {/* TASKS */}
+      {/* ================= FILTER ================= */}
+      <select
+        style={styles.filter}
+        value={taskFilter}
+        onChange={(e) => setTaskFilter(e.target.value)}
+      >
+        <option value="OLDEST">Oldest to Newest</option>
+        <option value="NEWEST">Newest to Oldest</option>
+        <option value="PENDING">Pending Only</option>
+        <option value="COMPLETED">Completed Only</option>
+      </select>
+
+      {/* ================= TASK LIST ================= */}
+      {[...tasks]
+        .filter((t) => {
+          if (taskFilter === "PENDING") return t.status === "PENDING";
+          if (taskFilter === "COMPLETED") return t.status === "COMPLETED";
+          return true;
+        })
+        .sort((a, b) => {
+          if (taskFilter === "NEWEST") {
+            return new Date(b.createdAt) - new Date(a.createdAt);
+          }
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        })
+        .map((task) => (
+          <div key={task._id} style={styles.card}>
+            <div style={styles.event}>
+              📍 Event: {task.eventId?.title || "N/A"}
+            </div>
+
+            <div style={styles.taskTitle}>{task.title}</div>
+
+            <div style={styles.desc}>{task.description}</div>
+
+            <div style={styles.status}>
+              Status:{" "}
+              {task.status === "COMPLETED" ? "✅ Completed" : "⏳ Pending"}
+            </div>
+
+            <div style={styles.date}>
+              🕒 Created: {formatDate(task.createdAt)}
+            </div>
+
+            {task.status === "PENDING" && (
+              <div style={styles.btnRow}>
+                <button
+                  style={{ ...styles.btn, ...styles.completed }}
+                  onClick={() => markCompleted(task._id)}
+                >
+                  Mark Completed
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+
       {tasks.length === 0 && (
         <div style={styles.empty}>🎉 No tasks assigned yet</div>
       )}
-
-      {tasks.map((task) => (
-        <div key={task._id} style={styles.card}>
-          <div style={styles.event}>
-            📍 Event: {task.eventId?.title || "N/A"}
-          </div>
-
-          <div style={styles.taskTitle}>{task.title}</div>
-
-          <div style={styles.desc}>{task.description}</div>
-
-          <div style={styles.status}>
-            Status:{" "}
-            {task.status === "COMPLETED" ? "✅ Completed" : "⏳ Pending"}
-          </div>
-
-          {task.status === "PENDING" && (
-            <div style={styles.btnRow}>
-              <button
-                style={{ ...styles.btn, ...styles.completed }}
-                onClick={() => markCompleted(task._id)}
-              >
-                Mark Completed
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
     </div>
   );
 };
