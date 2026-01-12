@@ -28,12 +28,18 @@ router.post("/", auth, async (req, res) => {
     const isAssigneeInTeam = team.members.some(
       (m) => m.toString() === assignedTo.toString()
     );
+// Admin ko bypass allow karo, baaki users ko team member hona zaroori
+if (
+  req.user.role !== "admin" &&
+  !team.members.some(
+    (m) => m.toString() === req.user._id.toString()
+  )
+) {
+  return res.status(403).json({
+    message: "Only team members can assign tasks",
+  });
+}
 
-    if (!isAssignerInTeam || !isAssigneeInTeam) {
-      return res
-        .status(403)
-        .json({ message: "Only team members can assign tasks" });
-    }
 
     const task = await Task.create({
       title,
