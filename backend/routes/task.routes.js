@@ -1,3 +1,5 @@
+// backend/routes/task.routes.js
+
 import express from "express";
 import Task from "../models/Task.js";
 import EventTeam from "../models/EventTeam.js";
@@ -10,43 +12,46 @@ router.post("/", auth, async (req, res) => {
   try {
     const { title, description, eventId, assignedTo } = req.body;
 
+    // 1. Basic validation
     if (!title || !description || !eventId || !assignedTo) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // 🔐 Check team exists for event
+    // 2. Team must exist for this event
     const team = await EventTeam.findOne({ event: eventId });
     if (!team) {
-      return res.status(400).json({ message: "Team not found for event" });
+      return res.status(400).json({ message: "Team not found for this event" });
     }
 
-    // 🔥 ObjectId safe comparison (MAIN FIX)
-    const isAssignerInTeam = team.members.some(
-      (m) => m.toString() === req.user.id.toString()
-    );
-
+    // 3. Check if assignee is in the team
     const isAssigneeInTeam = team.members.some(
       (m) => m.toString() === assignedTo.toString()
     );
-// Admin ko bypass allow karo, baaki users ko team member hona zaroori
-if (
-  req.user.role !== "admin" &&
-  !team.members.some(
-    (m) => m.toString() === req.user._id.toString()
-  )
-) {
-  return res.status(403).json({
-    message: "Only team members can assign tasks",
-  });
-}
 
+    if (!isAssigneeInTeam) {
+      return res
+        .status(400)
+        .json({ message: "Assigned user must be a team member" });
+    }
 
+    // 4. Only admin OR team member can assign task
+    const isAssignerInTeam = team.members.some(
+      (m) => m.toString() === req.user._id.toString()
+    );
+
+    if (req.user.role !== "admin" && !isAssignerInTeam) {
+      return res.status(403).json({
+        message: "Only team members can assign tasks",
+      });
+    }
+
+    // 5. Create Task
     const task = await Task.create({
       title,
       description,
       eventId,
       assignedTo,
-      assignedBy: req.user.id,
+      assignedBy: req.user._id, // 🔥 Always logged in user
       status: "PENDING",
     });
 
@@ -61,9 +66,10 @@ if (
 router.get("/", auth, async (req, res) => {
   try {
     const tasks = await Task.find()
-      .populate("eventId", "title")
-      .populate("assignedTo", "name")
-      .populate("assignedBy", "name");
+      .populate("eventId", "title venue")
+      .populate("assignedTo", "name email")
+      .populate("assignedBy", "name email")
+      .sort({ createdAt: 1 }); // Oldest → Newest (as per your requirement)
 
     res.json(tasks);
   } catch (err) {
@@ -75,9 +81,10 @@ router.get("/", auth, async (req, res) => {
 /* ================= USER: MY TASKS ================= */
 router.get("/my", auth, async (req, res) => {
   try {
-    const tasks = await Task.find({ assignedTo: req.user.id })
-      .populate("eventId", "title")
-      .populate("assignedBy", "name");
+    const tasks = await Task.find({ assignedTo: req.user._id })
+      .populate("eventId", "title venue")
+      .populate("assignedBy", "name email")
+      .sort({ createdAt: -1 }); // Newest → Oldest for user
 
     res.json(tasks);
   } catch (err) {
@@ -95,7 +102,7 @@ router.patch("/:id/status", auth, async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // 🔒 once completed, cannot go back
+    // 🔒 Once completed, cannot be changed again
     if (task.status === "COMPLETED") {
       return res
         .status(400)
