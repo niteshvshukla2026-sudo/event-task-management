@@ -69,7 +69,7 @@ router.get("/", auth, async (req, res) => {
       .populate("eventId", "title venue")
       .populate("assignedTo", "name email")
       .populate("assignedBy", "name email")
-      .sort({ createdAt: 1 }); // Oldest → Newest (as per your requirement)
+      .sort({ createdAt: 1 }); // Oldest → Newest
 
     res.json(tasks);
   } catch (err) {
