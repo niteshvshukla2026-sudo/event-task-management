@@ -495,10 +495,11 @@ const team = teams.find(
 );
 
 if (team && team.members && team.members.length > 0) {
-  setFilteredUsers(team.members);   // 🔥 direct use populated members
+  setFilteredUsers(team.members);  // direct populated users
 } else {
   setFilteredUsers([]);
 }
+
 
 
       }}
