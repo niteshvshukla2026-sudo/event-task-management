@@ -12,19 +12,24 @@ router.post("/", auth, async (req, res) => {
   try {
     const { title, description, eventId, assignedTo } = req.body;
 
+    // Basic validation
     if (!title || !description || !eventId || !assignedTo) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // 1. Find team for this event
+    // Find team for this event
     const team = await EventTeam.findOne({ event: eventId });
     if (!team) {
       return res.status(400).json({ message: "Team not found for this event" });
     }
 
-    // 2. Assigned user must be in the team
+    // Safe IDs
+    const assignedUserId = assignedTo.toString();
+    const assignerId = req.user._id.toString();
+
+    // Assigned user must be in team
     const isAssigneeInTeam = team.members.some(
-      (m) => m.toString() === assignedTo.toString()
+      (m) => m.toString() === assignedUserId
     );
 
     if (!isAssigneeInTeam) {
@@ -33,12 +38,12 @@ router.post("/", auth, async (req, res) => {
         .json({ message: "Assigned user must be a team member" });
     }
 
-    // 3. Only ADMIN / SUPER_ADMIN or Team Member can assign task
+    // Only ADMIN / SUPER_ADMIN or Team Member can assign task
     const isAssignerInTeam = team.members.some(
-      (m) => m.toString() === req.user._id.toString()
+      (m) => m.toString() === assignerId
     );
 
-    const role = req.user.role.toUpperCase();
+    const role = (req.user.role || "").toUpperCase();
 
     if (!["ADMIN", "SUPER_ADMIN"].includes(role) && !isAssignerInTeam) {
       return res.status(403).json({
@@ -46,13 +51,13 @@ router.post("/", auth, async (req, res) => {
       });
     }
 
-    // 4. Create Task
+    // Create task
     const task = await Task.create({
       title,
       description,
       eventId,
-      assignedTo,               // ObjectId of user
-      assignedBy: req.user._id, // 🔥 fixed
+      assignedTo: assignedUserId,
+      assignedBy: assignerId,
       status: "PENDING",
     });
 
@@ -82,7 +87,6 @@ router.get("/", auth, async (req, res) => {
 /* ================= USER: MY TASKS ================= */
 router.get("/my", auth, async (req, res) => {
   try {
-    // 🔥 MAIN FIX: use req.user._id instead of req.user
     const tasks = await Task.find({ assignedTo: req.user._id })
       .populate("eventId", "title venue")
       .populate("assignedBy", "name email")
