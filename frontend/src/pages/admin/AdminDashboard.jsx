@@ -495,11 +495,15 @@ const [taskFilter, setTaskFilter] = useState("OLDEST");
 );
 
 
-        if (team && team.members && team.members.length > 0) {
-          setFilteredUsers(team.members);
-        } else {
-          setFilteredUsers([]);
-        }
+      if (team && team.members && team.members.length > 0) {
+  const teamUsers = users.filter((u) =>
+    team.members.some((m) => String(m) === String(u._id))
+  );
+  setFilteredUsers(teamUsers);
+} else {
+  setFilteredUsers([]);
+}
+
       }}
     >
       <option value="">Select Event</option>
