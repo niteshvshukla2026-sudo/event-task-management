@@ -7,7 +7,7 @@ import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-/* ================= CREATE TASK (ADMIN + TEAM MEMBER) ================= */
+/* ================= CREATE TASK (ADMIN + SUPER_ADMIN + TEAM MEMBER) ================= */
 router.post("/", auth, async (req, res) => {
   try {
     const { title, description, eventId, assignedTo } = req.body;
@@ -16,13 +16,13 @@ router.post("/", auth, async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Team check
+    // 1. Find team for this event
     const team = await EventTeam.findOne({ event: eventId });
     if (!team) {
       return res.status(400).json({ message: "Team not found for this event" });
     }
 
-    // Assigned user must be in team
+    // 2. Assigned user must be in the team
     const isAssigneeInTeam = team.members.some(
       (m) => m.toString() === assignedTo.toString()
     );
@@ -33,24 +33,26 @@ router.post("/", auth, async (req, res) => {
         .json({ message: "Assigned user must be a team member" });
     }
 
-    // Only admin OR team member can assign task
+    // 3. Only ADMIN / SUPER_ADMIN or Team Member can assign task
     const isAssignerInTeam = team.members.some(
       (m) => m.toString() === req.user._id.toString()
     );
 
-    if (req.user.role.toUpperCase() !== "ADMIN" && !isAssignerInTeam) {
+    const role = req.user.role.toUpperCase();
+
+    if (!["ADMIN", "SUPER_ADMIN"].includes(role) && !isAssignerInTeam) {
       return res.status(403).json({
-        message: "Only admin or team members can assign tasks",
+        message: "Only admin, super admin or team members can assign tasks",
       });
     }
 
-    // Create task
+    // 4. Create Task
     const task = await Task.create({
       title,
       description,
       eventId,
-      assignedTo,                // already ObjectId
-      assignedBy: req.user._id,  // 🔥 FIXED
+      assignedTo,               // ObjectId of user
+      assignedBy: req.user._id, // 🔥 fixed
       status: "PENDING",
     });
 
@@ -80,7 +82,7 @@ router.get("/", auth, async (req, res) => {
 /* ================= USER: MY TASKS ================= */
 router.get("/my", auth, async (req, res) => {
   try {
-    // 🔥 MAIN FIX IS HERE
+    // 🔥 MAIN FIX: use req.user._id instead of req.user
     const tasks = await Task.find({ assignedTo: req.user._id })
       .populate("eventId", "title venue")
       .populate("assignedBy", "name email")
