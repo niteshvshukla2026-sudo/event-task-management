@@ -490,21 +490,16 @@ const [taskFilter, setTaskFilter] = useState("OLDEST");
         });
 
         // 🔥 Event ke basis pe team nikalna
- const team = teams.find(
-  (t) =>
-    (t.event?._id || t.event).toString() === eventId.toString()
+const team = teams.find(
+  (t) => (t.event?._id || t.event).toString() === eventId.toString()
 );
 
-
-
-      if (team && team.members && team.members.length > 0) {
-  const teamUsers = users.filter((u) =>
-    team.members.some((m) => String(m) === String(u._id))
-  );
-  setFilteredUsers(teamUsers);
+if (team && team.members && team.members.length > 0) {
+  setFilteredUsers(team.members);   // 🔥 direct use populated members
 } else {
   setFilteredUsers([]);
 }
+
 
       }}
     >
