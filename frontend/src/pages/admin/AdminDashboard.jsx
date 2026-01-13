@@ -490,9 +490,11 @@ const [taskFilter, setTaskFilter] = useState("OLDEST");
         });
 
         // 🔥 Event ke basis pe team nikalna
-      const team = teams.find(
-  (t) => String(t.event) === String(eventId)
+ const team = teams.find(
+  (t) =>
+    (t.event?._id || t.event).toString() === eventId.toString()
 );
+
 
 
       if (team && team.members && team.members.length > 0) {
