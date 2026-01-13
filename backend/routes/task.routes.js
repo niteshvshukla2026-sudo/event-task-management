@@ -25,20 +25,20 @@ router.post("/", auth, async (req, res) => {
       assignedTo = assignedTo._id;
     }
 
-    // Auth safety
-    if (!req.user || !req.user._id) {
+    // 🔥 FIX 1: yaha _id nahi, id hoga
+    if (!req.user || !req.user.id) {
       return res.status(401).json({ message: "Unauthorized: user missing" });
     }
 
-    // ⚠️ EventTeam model me field ka naam `event` hai, `eventId` nahi
+    // ⚠️ EventTeam model me field ka naam `event` hai
     const team = await EventTeam.findOne({ event: eventId });
     if (!team) {
       return res.status(400).json({ message: "Team not found for this event" });
     }
 
-    // 🔐 Safe conversion (kabhi bhi direct .toString() mat use karo)
+    // 🔥 FIX 2: assignerId ab req.user.id se aayega
     const assignedUserId = String(assignedTo);
-    const assignerId = String(req.user._id);
+    const assignerId = String(req.user.id);
 
     // Assigned user must be in team
     const isAssigneeInTeam = team.members.some(
@@ -64,7 +64,7 @@ router.post("/", auth, async (req, res) => {
       });
     }
 
-    // Create task
+    // 🔥 FIX 3: assignedBy me bhi req.user.id use hoga
     const task = await Task.create({
       title,
       description,
@@ -100,11 +100,12 @@ router.get("/", auth, async (req, res) => {
 /* ================= USER: MY TASKS ================= */
 router.get("/my", auth, async (req, res) => {
   try {
-    if (!req.user || !req.user._id) {
+    // 🔥 FIX 4: yaha bhi _id nahi, id
+    if (!req.user || !req.user.id) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const tasks = await Task.find({ assignedTo: req.user._id })
+    const tasks = await Task.find({ assignedTo: req.user.id })
       .populate("eventId", "title venue")
       .populate("assignedBy", "name email")
       .sort({ createdAt: -1 });
