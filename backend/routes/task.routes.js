@@ -22,7 +22,7 @@ router.post("/", auth, async (req, res) => {
     }
 
     // 🔥 MAIN FIX HERE
-    const team = await EventTeam.findOne({ eventId: eventId });
+    const team = await EventTeam.findOne({ event: eventId });
     if (!team) {
       return res.status(400).json({ message: "Team not found for this event" });
     }
