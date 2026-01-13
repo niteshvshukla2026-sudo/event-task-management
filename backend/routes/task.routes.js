@@ -33,25 +33,24 @@ router.post("/", auth, async (req, res) => {
         .json({ message: "Assigned user must be a team member" });
     }
 
-   // 4. Only admin OR team member can assign task
-const isAssignerInTeam = team.members.some(
-  (m) => m.toString() === req.user.id.toString()
-);
+    // Only admin OR team member can assign task
+    const isAssignerInTeam = team.members.some(
+      (m) => m.toString() === req.user._id.toString()
+    );
 
-if (req.user.role.toLowerCase() !== "admin" && !isAssignerInTeam) {
-  return res.status(403).json({
-    message: "Only team members can assign tasks",
-  });
-}
-
+    if (req.user.role.toUpperCase() !== "ADMIN" && !isAssignerInTeam) {
+      return res.status(403).json({
+        message: "Only admin or team members can assign tasks",
+      });
+    }
 
     // Create task
     const task = await Task.create({
       title,
       description,
       eventId,
-      assignedTo,
-      assignedBy: req.user.id,   // 🔥 correct
+      assignedTo,                // already ObjectId
+      assignedBy: req.user._id,  // 🔥 FIXED
       status: "PENDING",
     });
 
@@ -61,7 +60,6 @@ if (req.user.role.toLowerCase() !== "admin" && !isAssignerInTeam) {
     res.status(500).json({ message: "Failed to create task" });
   }
 });
-
 
 /* ================= ADMIN: GET ALL TASKS ================= */
 router.get("/", auth, async (req, res) => {
@@ -82,7 +80,8 @@ router.get("/", auth, async (req, res) => {
 /* ================= USER: MY TASKS ================= */
 router.get("/my", auth, async (req, res) => {
   try {
-    const tasks = await Task.find({ assignedTo: req.user })
+    // 🔥 MAIN FIX IS HERE
+    const tasks = await Task.find({ assignedTo: req.user._id })
       .populate("eventId", "title venue")
       .populate("assignedBy", "name email")
       .sort({ createdAt: -1 });
