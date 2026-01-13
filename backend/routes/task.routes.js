@@ -10,29 +10,39 @@ const router = express.Router();
 /* ================= CREATE TASK ================= */
 router.post("/", auth, async (req, res) => {
   try {
+    // Frontend se aane wala status ignore karo
+    delete req.body.status;
+
     let { title, description, eventId, assignedTo } = req.body;
 
+    // Basic validation
     if (!title || !description || !eventId || !assignedTo) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // If frontend ever sends full user object
+    // assignedTo agar object ho to uska _id lo
     if (typeof assignedTo === "object" && assignedTo._id) {
       assignedTo = assignedTo._id;
     }
 
-    // 🔥 MAIN FIX HERE
+    // Auth safety
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: "Unauthorized: user missing" });
+    }
+
+    // ⚠️ EventTeam model me field ka naam `event` hai, `eventId` nahi
     const team = await EventTeam.findOne({ event: eventId });
     if (!team) {
       return res.status(400).json({ message: "Team not found for this event" });
     }
 
-    const assignedUserId = assignedTo.toString();
-    const assignerId = req.user._id.toString();
+    // 🔐 Safe conversion (kabhi bhi direct .toString() mat use karo)
+    const assignedUserId = String(assignedTo);
+    const assignerId = String(req.user._id);
 
     // Assigned user must be in team
     const isAssigneeInTeam = team.members.some(
-      (m) => m.toString() === assignedUserId
+      (m) => String(m) === assignedUserId
     );
 
     if (!isAssigneeInTeam) {
@@ -41,9 +51,9 @@ router.post("/", auth, async (req, res) => {
         .json({ message: "Assigned user must be a team member" });
     }
 
-    // Only ADMIN / SUPER_ADMIN or Team Member can assign task
+    // Assigner must be admin/super admin OR team member
     const isAssignerInTeam = team.members.some(
-      (m) => m.toString() === assignerId
+      (m) => String(m) === assignerId
     );
 
     const role = (req.user.role || "").toUpperCase();
@@ -54,6 +64,7 @@ router.post("/", auth, async (req, res) => {
       });
     }
 
+    // Create task
     const task = await Task.create({
       title,
       description,
@@ -89,6 +100,10 @@ router.get("/", auth, async (req, res) => {
 /* ================= USER: MY TASKS ================= */
 router.get("/my", auth, async (req, res) => {
   try {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
     const tasks = await Task.find({ assignedTo: req.user._id })
       .populate("eventId", "title venue")
       .populate("assignedBy", "name email")
