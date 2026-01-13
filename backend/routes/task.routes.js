@@ -7,23 +7,26 @@ import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-/* ================= CREATE TASK (ADMIN + SUPER_ADMIN + TEAM MEMBER) ================= */
+/* ================= CREATE TASK ================= */
 router.post("/", auth, async (req, res) => {
   try {
-    const { title, description, eventId, assignedTo } = req.body;
+    let { title, description, eventId, assignedTo } = req.body;
 
-    // Basic validation
     if (!title || !description || !eventId || !assignedTo) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Find team for this event
-    const team = await EventTeam.findOne({ event: eventId });
+    // If frontend ever sends full user object
+    if (typeof assignedTo === "object" && assignedTo._id) {
+      assignedTo = assignedTo._id;
+    }
+
+    // 🔥 MAIN FIX HERE
+    const team = await EventTeam.findOne({ eventId: eventId });
     if (!team) {
       return res.status(400).json({ message: "Team not found for this event" });
     }
 
-    // Safe IDs
     const assignedUserId = assignedTo.toString();
     const assignerId = req.user._id.toString();
 
@@ -51,7 +54,6 @@ router.post("/", auth, async (req, res) => {
       });
     }
 
-    // Create task
     const task = await Task.create({
       title,
       description,
