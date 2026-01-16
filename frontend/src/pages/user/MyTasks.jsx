@@ -157,7 +157,8 @@ const UserDashboard = () => {
     setEventId(id);
     setAssignedTo("");
     try {
-      const res = await API.get(`/eventteams/${id}/members`);
+      const res = await API.get(`/eventteams/event/${eventId}/members`);
+
       setMembers(res.data);
     } catch (err) {
       console.error(err);
