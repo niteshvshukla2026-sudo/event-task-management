@@ -103,7 +103,7 @@ const styles = {
 const UserDashboard = () => {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
-  const [taskFilter, setTaskFilter] = useState("OLDEST"); // default: Oldest → Newest
+  const [taskFilter, setTaskFilter] = useState("OLDEST");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -183,12 +183,16 @@ const UserDashboard = () => {
         .map((task) => (
           <div key={task._id} style={styles.card}>
             <div style={styles.event}>
-              📍 Event: {task.eventId?.title || "N/A"}
+              📍 Event: {task.event?.title || "N/A"}
             </div>
 
             <div style={styles.taskTitle}>{task.title}</div>
 
             <div style={styles.desc}>{task.description}</div>
+
+            <div style={{ fontSize: "13px", color: "#6b7280", marginTop: "6px" }}>
+              👤 Assigned By: {task.assignedBy?.name || "Admin"}
+            </div>
 
             <div style={styles.status}>
               Status:{" "}
