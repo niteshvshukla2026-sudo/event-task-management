@@ -152,16 +152,21 @@ const UserDashboard = () => {
     }
   };
 
+  // 🔥 FINAL FIXED VERSION
   const handleEventChange = async (e) => {
     const id = e.target.value;
+
     setEventId(id);
     setAssignedTo("");
-    try {
-      const res = await API.get(`/eventteams/event/${eventId}/members`);
+    setMembers([]);
 
+    if (!id) return;
+
+    try {
+      const res = await API.get(`/eventteams/event/${id}/members`);
       setMembers(res.data);
     } catch (err) {
-      console.error(err);
+      console.error("Team members load error:", err.response?.data);
       alert("Failed to load team members");
     }
   };
@@ -309,7 +314,7 @@ const UserDashboard = () => {
         .map((task) => (
           <div key={task._id} style={styles.card}>
             <div style={styles.event}>
-              📍 Event: {task.event?.title || "N/A"}
+              📍 Event: {task.eventId?.title || "N/A"}
             </div>
 
             <div style={styles.taskTitle}>{task.title}</div>
