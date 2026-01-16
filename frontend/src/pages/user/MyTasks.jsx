@@ -163,7 +163,7 @@ const UserDashboard = () => {
     if (!id) return;
 
     try {
-      const res = await API.get(`/eventteams/event/${id}/members`);
+      const res = await API.get(`/teams/event/${id}/members`);
       setMembers(res.data);
     } catch (err) {
       console.error("Team members load error:", err.response?.data);
