@@ -48,8 +48,24 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-/* ================= GET MEMBERS OF EVENT TEAM ================= */
+/* ================= GET MEMBERS OF EVENT TEAM (OLD - keep as it is) ================= */
 router.get("/event/:eventId/members", auth, async (req, res) => {
+  try {
+    const team = await EventTeam.findOne({
+      event: req.params.eventId,
+    }).populate("members", "name email");
+
+    if (!team) return res.json([]);
+
+    res.json(team.members);
+  } catch (err) {
+    console.error("GET TEAM MEMBERS ERROR:", err);
+    res.status(500).json({ message: "Failed to load team members" });
+  }
+});
+
+/* ================= GET MEMBERS OF EVENT TEAM (NEW ALIAS for USER DASHBOARD) ================= */
+router.get("/:eventId/members", auth, async (req, res) => {
   try {
     const team = await EventTeam.findOne({
       event: req.params.eventId,
