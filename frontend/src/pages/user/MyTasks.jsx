@@ -43,7 +43,7 @@ const styles = {
     padding: "10px",
     borderRadius: "8px",
     border: "1px solid #ddd",
-    marginBottom: "16px",
+    marginBottom: "12px",
   },
   card: {
     background: "white",
@@ -91,10 +91,20 @@ const styles = {
     background: "#22c55e",
     color: "white",
   },
+  assignBtn: {
+    background: "#e53935",
+    color: "white",
+  },
   empty: {
     marginTop: "40px",
     textAlign: "center",
     color: "#6b7280",
+  },
+  sectionTitle: {
+    fontSize: "18px",
+    fontWeight: "700",
+    marginBottom: "10px",
+    color: "#e53935",
   },
 };
 
@@ -106,8 +116,17 @@ const UserDashboard = () => {
   const [taskFilter, setTaskFilter] = useState("OLDEST");
   const [error, setError] = useState("");
 
+  // For Assign Task Form
+  const [events, setEvents] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [eventId, setEventId] = useState("");
+  const [assignedTo, setAssignedTo] = useState("");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
   useEffect(() => {
     loadUserAndTasks();
+    loadMyEvents();
   }, []);
 
   const loadUserAndTasks = async () => {
@@ -116,12 +135,59 @@ const UserDashboard = () => {
         API.get("/users/me"),
         API.get("/tasks/my"),
       ]);
-
       setUser(userRes.data);
       setTasks(taskRes.data);
     } catch (err) {
       console.error(err);
       setError("Failed to load user data");
+    }
+  };
+
+  const loadMyEvents = async () => {
+    try {
+      const res = await API.get("/events/my");
+      setEvents(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleEventChange = async (e) => {
+    const id = e.target.value;
+    setEventId(id);
+    setAssignedTo("");
+    try {
+      const res = await API.get(`/eventteams/${id}/members`);
+      setMembers(res.data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load team members");
+    }
+  };
+
+  const assignTask = async (e) => {
+    e.preventDefault();
+    try {
+      await API.post("/tasks", {
+        title,
+        description,
+        eventId,
+        assignedTo,
+      });
+      alert("Task Assigned Successfully");
+
+      // Reset form
+      setTitle("");
+      setDescription("");
+      setAssignedTo("");
+      setEventId("");
+      setMembers([]);
+
+      // Reload tasks
+      loadUserAndTasks();
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Error assigning task");
     }
   };
 
@@ -154,6 +220,65 @@ const UserDashboard = () => {
       </div>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {/* ================= ASSIGN TASK SECTION ================= */}
+      <div style={styles.card}>
+        <div style={styles.sectionTitle}>Assign New Task</div>
+
+        <form onSubmit={assignTask}>
+          <select
+            required
+            value={eventId}
+            onChange={handleEventChange}
+            style={styles.filter}
+          >
+            <option value="">Select Event</option>
+            {events.map((e) => (
+              <option key={e._id} value={e._id}>
+                {e.title}
+              </option>
+            ))}
+          </select>
+
+          <select
+            required
+            value={assignedTo}
+            onChange={(e) => setAssignedTo(e.target.value)}
+            style={styles.filter}
+            disabled={!eventId}
+          >
+            <option value="">Assign To (Team Member)</option>
+            {members.map((m) => (
+              <option key={m._id} value={m._id}>
+                {m.name}
+              </option>
+            ))}
+          </select>
+
+          <input
+            style={styles.filter}
+            placeholder="Task Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
+
+          <textarea
+            style={styles.filter}
+            placeholder="Task Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            required
+          />
+
+          <button
+            type="submit"
+            style={{ ...styles.btn, ...styles.assignBtn }}
+          >
+            Assign Task
+          </button>
+        </form>
+      </div>
 
       {/* ================= FILTER ================= */}
       <select
