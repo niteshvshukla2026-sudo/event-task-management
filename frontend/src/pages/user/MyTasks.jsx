@@ -139,11 +139,11 @@ const logout = () => {
   const [description, setDescription] = useState("");
 
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    navigate("/login");
-    return;
-  }
+  const logout = () => {
+  localStorage.removeItem("token");
+  navigate("/", { replace: true });
+};
+
 
   loadUserAndTasks();
   loadMyEvents();
