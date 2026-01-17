@@ -220,17 +220,26 @@ const logout = () => {
   };
 
   // 🔒 Once COMPLETED, cannot go back to PENDING
-  const markCompleted = async (taskId) => {
-    try {
-      await API.patch(`/tasks/${taskId}/status`, {
-        status: "COMPLETED",
-      });
-      loadUserAndTasks();
-    } catch (err) {
-      console.error(err);
-      alert("Failed to update task status");
-    }
-  };
+ const markCompleted = async (taskId) => {
+  const remarks = prompt("Please enter remarks before completing the task:");
+
+  if (!remarks || remarks.trim() === "") {
+    alert("Remarks are required to complete the task");
+    return;
+  }
+
+  try {
+    await API.patch(`/tasks/${taskId}/status`, {
+      status: "COMPLETED",
+      description: remarks,
+    });
+    loadUserAndTasks();
+  } catch (err) {
+    console.error(err);
+    alert(err.response?.data?.message || "Failed to update task status");
+  }
+};
+
 
   return (
     <div style={styles.page}>
