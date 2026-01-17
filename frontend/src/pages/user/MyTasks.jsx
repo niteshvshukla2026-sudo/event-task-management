@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import API from "../../services/api";
 
 /* ================= HELPERS ================= */
@@ -22,8 +24,12 @@ const styles = {
     fontFamily: "Inter, system-ui, Arial",
   },
   header: {
-    marginBottom: "24px",
-  },
+  marginBottom: "24px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+},
+
   logo: {
     fontSize: "28px",
     fontWeight: "700",
@@ -115,6 +121,13 @@ const UserDashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [taskFilter, setTaskFilter] = useState("OLDEST");
   const [error, setError] = useState("");
+
+  const navigate = useNavigate();
+
+const logout = () => {
+  localStorage.removeItem("token");
+  navigate("/login");
+};
 
   // For Assign Task Form
   const [events, setEvents] = useState([]);
@@ -213,17 +226,35 @@ const UserDashboard = () => {
   return (
     <div style={styles.page}>
       {/* ================= HEADER ================= */}
-      <div style={styles.header}>
-        <div style={styles.logo}>triptadka</div>
-        <div style={styles.subtitle}>User Dashboard</div>
+     <div style={styles.header}>
+  <div>
+    <div style={styles.logo}>triptadka</div>
+    <div style={styles.subtitle}>User Dashboard</div>
 
-        {user && (
-          <div style={styles.userName}>
-            👋 Welcome,{" "}
-            <span style={{ color: "#e53935" }}>{user.name}</span>
-          </div>
-        )}
+    {user && (
+      <div style={styles.userName}>
+        👋 Welcome,{" "}
+        <span style={{ color: "#e53935" }}>{user.name}</span>
       </div>
+    )}
+  </div>
+
+  <button
+    onClick={logout}
+    style={{
+      background: "#e53935",
+      color: "white",
+      border: "none",
+      padding: "8px 14px",
+      borderRadius: "8px",
+      cursor: "pointer",
+      fontSize: "14px",
+    }}
+  >
+    Logout
+  </button>
+</div>
+
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
