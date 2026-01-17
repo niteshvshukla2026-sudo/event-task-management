@@ -131,6 +131,11 @@ const AdminDashboard = () => {
 const [eventFilter, setEventFilter] = useState("NEWEST"); 
 const [taskFilter, setTaskFilter] = useState("OLDEST");
 
+const handleLogout = () => {
+  localStorage.removeItem("token");   // token delete
+  navigate("/");                      // login page pe bhejo
+};
+
   /* ================= FORMS ================= */
 
   const [userForm, setUserForm] = useState({
@@ -297,10 +302,29 @@ const [taskFilter, setTaskFilter] = useState("OLDEST");
 
   return (
     <div style={styles.page}>
-      <div style={styles.header}>
-        <div style={styles.logo}>triptadka</div>
-        <div style={styles.subtitle}>Admin Dashboard</div>
-      </div>
+     <div style={styles.header}>
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div>
+      <div style={styles.logo}>triptadka</div>
+      <div style={styles.subtitle}>Admin Dashboard</div>
+    </div>
+
+    <button
+      onClick={handleLogout}
+      style={{
+        background: "#dc2626",
+        color: "white",
+        border: "none",
+        padding: "8px 14px",
+        borderRadius: "8px",
+        cursor: "pointer",
+      }}
+    >
+      Logout
+    </button>
+  </div>
+</div>
+
 
       <div style={styles.tabs}>
         {TABS.map((t) => (
