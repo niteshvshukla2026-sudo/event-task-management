@@ -139,10 +139,11 @@ const logout = () => {
   const [description, setDescription] = useState("");
 
   useEffect(() => {
-  const logout = () => {
+const logout = () => {
   localStorage.removeItem("token");
-  navigate("/", { replace: true });
+  window.location.href = "/";   // navigate nahi, direct reload
 };
+
 
 
   loadUserAndTasks();
