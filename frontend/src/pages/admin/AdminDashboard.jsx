@@ -135,7 +135,19 @@ const handleLogout = () => {
   localStorage.removeItem("token");   // token delete
   navigate("/");                      // login page pe bhejo
 };
-
+const [currentUser, setCurrentUser] = useState(null);
+const loadCurrentUser = async () => {
+  try {
+    const res = await API.get("/users/me");
+    setCurrentUser(res.data);
+  } catch (err) {
+    console.error("Failed to load current user", err);
+  }
+};
+ const visibleTabs =
+    currentUser?.role === "SUPER_ADMIN"
+      ? TABS
+      : TABS.filter((t) => t !== "Create User");
   /* ================= FORMS ================= */
 
   const [userForm, setUserForm] = useState({
@@ -169,6 +181,7 @@ const handleLogout = () => {
     if (!token) {
       navigate("/login");
     } else {
+        loadCurrentUser(); 
       loadAll();
     }
   }, []);
@@ -327,19 +340,20 @@ const handleLogout = () => {
 
 
       <div style={styles.tabs}>
-        {TABS.map((t) => (
-          <button
-            key={t}
-            style={{
-              ...styles.tab,
-              ...(activeTab === t ? styles.tabActive : {}),
-            }}
-            onClick={() => setActiveTab(t)}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
+  {visibleTabs.map((t) => (
+    <button
+      key={t}
+      style={{
+        ...styles.tab,
+        ...(activeTab === t ? styles.tabActive : {}),
+      }}
+      onClick={() => setActiveTab(t)}
+    >
+      {t}
+    </button>
+  ))}
+</div>
+
 
       {error && <div style={styles.error}>{error}</div>}
 
@@ -354,9 +368,9 @@ const handleLogout = () => {
       )}
 
       {/* ================= CREATE USER ================= */}
-      {activeTab === "Create User" && (
-        <div style={styles.card}>
-          <h2>Create User</h2>
+      {activeTab === "Create User" && currentUser?.role === "SUPER_ADMIN" && (
+  <div style={styles.card}>
+    <h2>Create User</h2>
           <input
             style={styles.input}
             placeholder="Name"
