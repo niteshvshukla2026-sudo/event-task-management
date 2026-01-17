@@ -126,8 +126,9 @@ const UserDashboard = () => {
 
 const logout = () => {
   localStorage.removeItem("token");
-  navigate("/login");
+  navigate("/login", { replace: true });
 };
+
 
   // For Assign Task Form
   const [events, setEvents] = useState([]);
@@ -138,9 +139,16 @@ const logout = () => {
   const [description, setDescription] = useState("");
 
   useEffect(() => {
-    loadUserAndTasks();
-    loadMyEvents();
-  }, []);
+  const token = localStorage.getItem("token");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
+  loadUserAndTasks();
+  loadMyEvents();
+}, []);
+
 
   const loadUserAndTasks = async () => {
     try {
