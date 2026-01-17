@@ -150,11 +150,13 @@ const loadCurrentUser = async () => {
       : TABS.filter((t) => t !== "Create User");
   /* ================= FORMS ================= */
 
-  const [userForm, setUserForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+const [userForm, setUserForm] = useState({
+  name: "",
+  email: "",
+  password: "",
+  role: "USER",   // default USER
+});
+
 
   const [eventForm, setEventForm] = useState({
     title: "",
@@ -218,7 +220,12 @@ const loadCurrentUser = async () => {
     try {
       await API.post("/users", userForm);
       alert("User created");
-      setUserForm({ name: "", email: "", password: "" });
+       setUserForm({
+      name: "",
+      email: "",
+      password: "",
+      role: "USER",      // default wapas USER
+    });
       loadAll();
       setActiveTab("Overview");
     } catch (err) {
@@ -396,6 +403,17 @@ const loadCurrentUser = async () => {
               setUserForm({ ...userForm, password: e.target.value })
             }
           />
+          <select
+  style={styles.input}
+  value={userForm.role}
+  onChange={(e) =>
+    setUserForm({ ...userForm, role: e.target.value })
+  }
+>
+  <option value="USER">User</option>
+  <option value="ADMIN">Admin</option>
+</select>
+
           <button style={styles.button} onClick={createUser}>
             Create User
           </button>
