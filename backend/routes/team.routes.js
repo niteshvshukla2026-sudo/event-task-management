@@ -1,5 +1,8 @@
+// backend/routes/team.routes.js
+
 import express from "express";
 import EventTeam from "../models/EventTeam.js";
+import Notification from "../models/Notification.js";   // 🔔 ADD
 import auth from "../middleware/auth.js";
 
 const router = express.Router();
@@ -21,14 +24,13 @@ router.get("/", auth, async (req, res) => {
 /* ================= CREATE EVENT TEAM ================= */
 router.post("/", auth, async (req, res) => {
   try {
-    // 🔥 Frontend se { event, members } aa raha hai
     const { event, members } = req.body;
 
     if (!event || !Array.isArray(members) || members.length === 0) {
       return res.status(400).json({ message: "Event & members required" });
     }
 
-    // 🔒 prevent duplicate team for same event
+    // prevent duplicate team for same event
     const already = await EventTeam.findOne({ event });
     if (already) {
       return res
@@ -37,9 +39,18 @@ router.post("/", auth, async (req, res) => {
     }
 
     const team = await EventTeam.create({
-      event,       // event id
-      members,     // array of user ids
+      event,
+      members,
     });
+
+    // 🔔 NOTIFICATION → All Team Members
+    for (let memberId of members) {
+      await Notification.create({
+        user: memberId,
+        message: "You have been added to a new Event Team",
+        type: "TEAM_CREATED",
+      });
+    }
 
     res.status(201).json(team);
   } catch (err) {
@@ -48,7 +59,7 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-/* ================= GET MEMBERS OF EVENT TEAM (OLD - keep as it is) ================= */
+/* ================= GET MEMBERS OF EVENT TEAM (OLD) ================= */
 router.get("/event/:eventId/members", auth, async (req, res) => {
   try {
     const team = await EventTeam.findOne({
@@ -64,7 +75,7 @@ router.get("/event/:eventId/members", auth, async (req, res) => {
   }
 });
 
-/* ================= GET MEMBERS OF EVENT TEAM (NEW ALIAS for USER DASHBOARD) ================= */
+/* ================= GET MEMBERS OF EVENT TEAM (NEW ALIAS) ================= */
 router.get("/:eventId/members", auth, async (req, res) => {
   try {
     const team = await EventTeam.findOne({

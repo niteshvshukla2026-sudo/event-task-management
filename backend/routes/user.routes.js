@@ -1,6 +1,9 @@
+// backend/routes/user.routes.js
+
 import express from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
+import Notification from "../models/Notification.js";   // 🔔 ADD
 import auth from "../middleware/auth.js";
 
 const router = express.Router();
@@ -33,8 +36,14 @@ router.post("/", auth, async (req, res) => {
       name,
       email,
       password: hashed,
-      // Agar role na bheja ho to default USER
       role: role || "USER",
+    });
+
+    // 🔔 NOTIFICATION → New User
+    await Notification.create({
+      user: user._id,
+      message: "Your account has been created successfully. Welcome!",
+      type: "USER_CREATED",
     });
 
     res.status(201).json({
@@ -52,12 +61,10 @@ router.post("/", auth, async (req, res) => {
 /* ================= GET ALL USERS (ADMIN + SUPER_ADMIN) ================= */
 router.get("/", auth, async (req, res) => {
   try {
-    // ADMIN aur SUPER_ADMIN dono dekh sakte hain
     if (!["ADMIN", "SUPER_ADMIN"].includes(req.user.role)) {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    // Sirf normal USERS list karo (Admin/SuperAdmin nahi)
     const users = await User.find({ role: "USER" }).select("-password");
     res.json(users);
   } catch (err) {

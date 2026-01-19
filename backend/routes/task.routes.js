@@ -3,6 +3,7 @@
 import express from "express";
 import Task from "../models/Task.js";
 import EventTeam from "../models/EventTeam.js";
+import Notification from "../models/Notification.js";   // 🔔 Notification model
 import auth from "../middleware/auth.js";
 
 const router = express.Router();
@@ -10,48 +11,45 @@ const router = express.Router();
 /* ================= CREATE TASK ================= */
 router.post("/", auth, async (req, res) => {
   try {
-    // Frontend se aane wala status ignore karo
+    // Frontend se status ignore
     delete req.body.status;
 
     let { title, description, eventId, assignedTo } = req.body;
 
-    // Basic validation
+    // Validation
     if (!title || !description || !eventId || !assignedTo) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // assignedTo agar object ho to uska _id lo
+    // assignedTo object ho to id lo
     if (typeof assignedTo === "object" && assignedTo._id) {
       assignedTo = assignedTo._id;
     }
 
-    // 🔥 FIX 1: yaha _id nahi, id hoga
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: "Unauthorized: user missing" });
     }
 
-    // ⚠️ EventTeam model me field ka naam `event` hai
+    // Team check
     const team = await EventTeam.findOne({ event: eventId });
     if (!team) {
       return res.status(400).json({ message: "Team not found for this event" });
     }
 
-    // 🔥 FIX 2: assignerId ab req.user.id se aayega
     const assignedUserId = String(assignedTo);
     const assignerId = String(req.user.id);
 
-    // Assigned user must be in team
+    // Assigned user must be team member
     const isAssigneeInTeam = team.members.some(
       (m) => String(m) === assignedUserId
     );
-
     if (!isAssigneeInTeam) {
       return res
         .status(400)
         .json({ message: "Assigned user must be a team member" });
     }
 
-    // Assigner must be admin/super admin OR team member
+    // Assigner must be ADMIN / SUPER_ADMIN or team member
     const isAssignerInTeam = team.members.some(
       (m) => String(m) === assignerId
     );
@@ -64,7 +62,7 @@ router.post("/", auth, async (req, res) => {
       });
     }
 
-    // 🔥 FIX 3: assignedBy me bhi req.user.id use hoga
+    // Create task
     const task = await Task.create({
       title,
       description,
@@ -72,6 +70,14 @@ router.post("/", auth, async (req, res) => {
       assignedTo: assignedUserId,
       assignedBy: assignerId,
       status: "PENDING",
+    });
+
+    /* 🔔 NOTIFICATION → Assigned User */
+    await Notification.create({
+      user: assignedUserId,
+      message: `New task assigned: ${title}`,
+      type: "TASK_ASSIGNED",
+      isRead: false,
     });
 
     res.status(201).json(task);
@@ -100,7 +106,6 @@ router.get("/", auth, async (req, res) => {
 /* ================= USER: MY TASKS ================= */
 router.get("/my", auth, async (req, res) => {
   try {
-    // 🔥 FIX 4: yaha bhi _id nahi, id
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -122,7 +127,7 @@ router.patch("/:id/status", auth, async (req, res) => {
   try {
     const { status, description } = req.body;
 
-    // 🔥 If completing task, description (remarks) is mandatory
+    // Remarks mandatory if completing
     if (status === "COMPLETED" && (!description || description.trim() === "")) {
       return res.status(400).json({
         message: "Remarks are required to complete the task",
@@ -137,12 +142,21 @@ router.patch("/:id/status", auth, async (req, res) => {
 
     task.status = status;
 
-    // save remarks in description
     if (description) {
       task.description = description;
     }
 
     await task.save();
+
+    /* 🔔 NOTIFICATION → Task assigner (Admin/User who gave task) */
+    if (status === "COMPLETED") {
+      await Notification.create({
+        user: task.assignedBy,
+        message: `${req.user.name} completed the task: ${task.title}`,
+        type: "TASK_COMPLETED",
+        isRead: false,
+      });
+    }
 
     res.json(task);
   } catch (err) {
@@ -150,6 +164,5 @@ router.patch("/:id/status", auth, async (req, res) => {
     res.status(500).json({ message: "Failed to update task status" });
   }
 });
-
 
 export default router;

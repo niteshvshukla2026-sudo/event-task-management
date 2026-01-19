@@ -205,6 +205,13 @@ const [userForm, setUserForm] = useState({
     }
   }, []);
 const unreadCount = notifications.filter(n => !n.isRead).length;
+useEffect(() => {
+  const interval = setInterval(() => {
+    loadNotifications();
+  }, 15000);
+
+  return () => clearInterval(interval);
+}, []);
 
   const loadAll = async () => {
     try {
@@ -242,9 +249,12 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
       name: "",
       email: "",
       password: "",
-      role: "USER",      // default wapas USER
+      role: "USER", 
+           // default wapas USER
     });
       loadAll();
+      loadNotifications();   // 🔔 ADD
+
       setActiveTab("Overview");
     } catch (err) {
       console.error(err.response?.data);
@@ -258,6 +268,8 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
       alert("Event created");
       setEventForm({ title: "", venue: "", description: "" });
       loadAll();
+      loadNotifications();   // 🔔 ADD
+
       setActiveTab("Events");
     } catch (err) {
       console.error(err.response?.data);
@@ -290,6 +302,8 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
       });
 
       loadAll();
+      loadNotifications();   // 🔔 ADD
+
       setActiveTab("Overview");
     } catch (err) {
       console.error(err.response?.data);
@@ -329,6 +343,8 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
 
       setFilteredUsers([]);
       loadAll();
+      loadNotifications();   // 🔔 ADD
+
       setActiveTab("Tasks");
     } catch (err) {
       console.error(err.response?.data);
@@ -348,7 +364,10 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
     </div>
 <div style={{ position: "relative", marginRight: "16px" }}>
   <div
-    onClick={() => setShowNotifications(!showNotifications)}
+    onClick={(e) => {
+  e.stopPropagation();
+  setShowNotifications(!showNotifications);
+}}
     style={{ cursor: "pointer", fontSize: "22px", position: "relative" }}
   >
     🔔
@@ -391,10 +410,14 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
         notifications.map((n) => (
           <div
             key={n._id}
-            onClick={async () => {
-              await API.put(`/notifications/${n._id}/read`);
-              loadNotifications();
-            }}
+   onClick={async (e) => {
+  e.stopPropagation();
+  await API.put(`/notifications/${n._id}/read`);
+  loadNotifications();
+  setShowNotifications(false);
+}}
+
+
             style={{
               padding: "10px",
               borderBottom: "1px solid #eee",

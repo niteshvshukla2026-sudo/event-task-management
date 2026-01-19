@@ -161,6 +161,13 @@ const logout = () => {
   loadMyEvents();
    loadNotifications(); 
 }, []);
+useEffect(() => {
+  const interval = setInterval(() => {
+    loadNotifications();
+  }, 15000); // har 15 sec me refresh
+
+  return () => clearInterval(interval);
+}, []);
 
 const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -226,6 +233,7 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
 
       // Reload tasks
       loadUserAndTasks();
+       loadNotifications(); 
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Error assigning task");
@@ -247,6 +255,7 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
       description: remarks,
     });
     loadUserAndTasks();
+     loadNotifications(); 
   } catch (err) {
     console.error(err);
     alert(err.response?.data?.message || "Failed to update task status");
