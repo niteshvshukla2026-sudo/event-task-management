@@ -1,6 +1,8 @@
 // backend/routes/task.routes.js
 
 import express from "express";
+import User from "../models/User.js";   // 🔥 ADD TOP PE
+
 import Task from "../models/Task.js";
 import EventTeam from "../models/EventTeam.js";
 import Notification from "../models/Notification.js";   // 🔔 Notification model
@@ -148,15 +150,15 @@ router.patch("/:id/status", auth, async (req, res) => {
 
     await task.save();
 
-    /* 🔔 NOTIFICATION → Task assigner (Admin/User who gave task) */
-    if (status === "COMPLETED") {
-      await Notification.create({
-        user: task.assignedBy,
-        message: `${req.user.name} completed the task: ${task.title}`,
-        type: "TASK_COMPLETED",
-        isRead: false,
-      });
-    }
+    // 🔥 Get completed user details
+    const completedByUser = await User.findById(req.user.id);
+
+    // 🔔 NOTIFICATION → Task Assigner
+    await Notification.create({
+      user: task.assignedBy,
+      message: `${completedByUser.name} completed the task: ${task.title}`,
+      type: "TASK_COMPLETED",
+    });
 
     res.json(task);
   } catch (err) {
