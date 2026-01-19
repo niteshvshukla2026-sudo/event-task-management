@@ -121,6 +121,8 @@ const UserDashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [taskFilter, setTaskFilter] = useState("OLDEST");
   const [error, setError] = useState("");
+const [notifications, setNotifications] = useState([]);
+const [showNotifications, setShowNotifications] = useState(false);
 
   const navigate = useNavigate();
 
@@ -129,6 +131,14 @@ const logout = () => {
   navigate("/login", { replace: true });
 };
 
+const loadNotifications = async () => {
+  try {
+    const res = await API.get("/notifications");
+    setNotifications(res.data || []);
+  } catch (err) {
+    console.error("Failed to load notifications", err);
+  }
+};
 
   // For Assign Task Form
   const [events, setEvents] = useState([]);
@@ -141,15 +151,18 @@ const logout = () => {
   useEffect(() => {
 const logout = () => {
   localStorage.removeItem("token");
-  window.location.href = "/";   // navigate nahi, direct reload
+  window.location.href = "/"; 
+    // navigate nahi, direct reload
 };
 
 
 
   loadUserAndTasks();
   loadMyEvents();
+   loadNotifications(); 
 }, []);
 
+const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const loadUserAndTasks = async () => {
     try {
@@ -248,30 +261,100 @@ const logout = () => {
   <div>
     <div style={styles.logo}>triptadka</div>
     <div style={styles.subtitle}>User Dashboard</div>
-
     {user && (
       <div style={styles.userName}>
-        👋 Welcome,{" "}
-        <span style={{ color: "#e53935" }}>{user.name}</span>
+        👋 Welcome, <span style={{ color: "#e53935" }}>{user.name}</span>
       </div>
     )}
   </div>
 
-  <button
-    onClick={logout}
-    style={{
-      background: "#e53935",
-      color: "white",
-      border: "none",
-      padding: "8px 14px",
-      borderRadius: "8px",
-      cursor: "pointer",
-      fontSize: "14px",
-    }}
-  >
-    Logout
-  </button>
+  <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+    {/* 🔔 Notification Bell */}
+    <div style={{ position: "relative" }}>
+      <div
+        onClick={() => setShowNotifications(!showNotifications)}
+        style={{ cursor: "pointer", fontSize: "22px", position: "relative" }}
+      >
+        🔔
+        {unreadCount > 0 && (
+          <span
+            style={{
+              position: "absolute",
+              top: "-6px",
+              right: "-8px",
+              background: "red",
+              color: "white",
+              borderRadius: "50%",
+              padding: "2px 6px",
+              fontSize: "10px",
+            }}
+          >
+            {unreadCount}
+          </span>
+        )}
+      </div>
+
+      {showNotifications && (
+        <div
+          style={{
+            position: "absolute",
+            right: 0,
+            top: "30px",
+            width: "300px",
+            background: "white",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+            borderRadius: "10px",
+            zIndex: 999,
+            maxHeight: "300px",
+            overflowY: "auto",
+          }}
+        >
+          {notifications.length === 0 ? (
+            <p style={{ padding: "10px" }}>No notifications</p>
+          ) : (
+            notifications.map((n) => (
+              <div
+                key={n._id}
+                onClick={async () => {
+                  await API.put(`/notifications/${n._id}/read`);
+                  loadNotifications();
+                }}
+                style={{
+                  padding: "10px",
+                  borderBottom: "1px solid #eee",
+                  background: n.isRead ? "#fff" : "#ffe4e6",
+                  cursor: "pointer",
+                }}
+              >
+                <div style={{ fontSize: "14px" }}>{n.message}</div>
+                <div style={{ fontSize: "11px", color: "#777" }}>
+                  {formatDate(n.createdAt)}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+
+    {/* Logout */}
+    <button
+      onClick={logout}
+      style={{
+        background: "#e53935",
+        color: "white",
+        border: "none",
+        padding: "8px 14px",
+        borderRadius: "8px",
+        cursor: "pointer",
+        fontSize: "14px",
+      }}
+    >
+      Logout
+    </button>
+  </div>
 </div>
+
 
 
       {error && <p style={{ color: "red" }}>{error}</p>}
