@@ -130,6 +130,10 @@ const AdminDashboard = () => {
   const [error, setError] = useState("");
 const [eventFilter, setEventFilter] = useState("NEWEST"); 
 const [taskFilter, setTaskFilter] = useState("OLDEST");
+const [notifications, setNotifications] = useState([]);
+const [showNotifications, setShowNotifications] = useState(false);
+
+
 
 const handleLogout = () => {
   localStorage.removeItem("token");   // token delete
@@ -144,10 +148,22 @@ const loadCurrentUser = async () => {
     console.error("Failed to load current user", err);
   }
 };
+
+const loadNotifications = async () => {
+  try {
+    const res = await API.get("/notifications");
+    setNotifications(res.data || []);
+  } catch (err) {
+    console.error("Notification load error", err);
+  }
+};
+
  const visibleTabs =
     currentUser?.role === "SUPER_ADMIN"
       ? TABS
       : TABS.filter((t) => t !== "Create User");
+
+
   /* ================= FORMS ================= */
 
 const [userForm, setUserForm] = useState({
@@ -185,8 +201,10 @@ const [userForm, setUserForm] = useState({
     } else {
         loadCurrentUser(); 
       loadAll();
+       loadNotifications(); 
     }
   }, []);
+const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const loadAll = async () => {
     try {
@@ -328,6 +346,72 @@ const [userForm, setUserForm] = useState({
       <div style={styles.logo}>triptadka</div>
       <div style={styles.subtitle}>Admin Dashboard</div>
     </div>
+<div style={{ position: "relative", marginRight: "16px" }}>
+  <div
+    onClick={() => setShowNotifications(!showNotifications)}
+    style={{ cursor: "pointer", fontSize: "22px", position: "relative" }}
+  >
+    🔔
+    {unreadCount > 0 && (
+      <span
+        style={{
+          position: "absolute",
+          top: "-6px",
+          right: "-8px",
+          background: "red",
+          color: "white",
+          borderRadius: "50%",
+          padding: "2px 6px",
+          fontSize: "10px"
+        }}
+      >
+        {unreadCount}
+      </span>
+    )}
+  </div>
+
+  {showNotifications && (
+    <div
+      style={{
+        position: "absolute",
+        right: 0,
+        top: "30px",
+        width: "300px",
+        background: "white",
+        boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+        borderRadius: "8px",
+        zIndex: 1000,
+        maxHeight: "300px",
+        overflowY: "auto"
+      }}
+    >
+      {notifications.length === 0 ? (
+        <p style={{ padding: "10px" }}>No notifications</p>
+      ) : (
+        notifications.map((n) => (
+          <div
+            key={n._id}
+            onClick={async () => {
+              await API.put(`/notifications/${n._id}/read`);
+              loadNotifications();
+            }}
+            style={{
+              padding: "10px",
+              borderBottom: "1px solid #eee",
+              background: n.isRead ? "#f9f9f9" : "#ffe4e6",
+              cursor: "pointer"
+            }}
+          >
+            <div style={{ fontSize: "14px" }}>{n.message}</div>
+            <div style={{ fontSize: "11px", color: "#666" }}>
+              {formatDate(n.createdAt)}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  )}
+</div>
 
     <button
       onClick={handleLogout}

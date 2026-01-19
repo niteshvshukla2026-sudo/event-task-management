@@ -8,14 +8,12 @@ import userRoutes from "./routes/user.routes.js";
 import eventRoutes from "./routes/event.routes.js";
 import taskRoutes from "./routes/task.routes.js";
 import teamRoutes from "./routes/team.routes.js";
+import notificationRoutes from "./routes/notification.routes.js"; // 👈 add
 
-/* ================= ENV ================= */
 dotenv.config();
 
-/* ================= APP ================= */
 const app = express();
 
-/* ================= MIDDLEWARE ================= */
 app.use(
   cors({
     origin: process.env.ALLOW_ALL_ORIGINS === "true"
@@ -27,7 +25,6 @@ app.use(
 
 app.use(express.json());
 
-/* ================= DATABASE ================= */
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Atlas Connected"))
@@ -42,8 +39,8 @@ app.use("/api/users", userRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/notifications", notificationRoutes); // 👈 yahi se notifications ka API chalega
 
-/* ================= SERVER ================= */
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
