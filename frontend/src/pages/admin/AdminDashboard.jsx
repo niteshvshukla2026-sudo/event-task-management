@@ -905,11 +905,18 @@ if (team && team.members && team.members.length > 0) {
 )}
 
       {/* ================= TASKS ================= */}
-      {activeTab === "Tasks" && (
-        <>
-         {/* 🔥 ADD THIS DROPDOWN HERE */}
+     {/* ================= TASKS ================= */}
+{activeTab === "Tasks" && (
+  <>
+    {/* 🔽 Task Filter */}
     <select
-      style={styles.input}
+      style={{
+        ...styles.input,
+        maxWidth: "260px",
+        marginBottom: "20px",
+        borderRadius: "12px",
+        boxShadow: "0 6px 14px rgba(0,0,0,0.08)",
+      }}
       value={taskFilter}
       onChange={(e) => setTaskFilter(e.target.value)}
     >
@@ -918,41 +925,146 @@ if (team && team.members && team.members.length > 0) {
       <option value="PENDING">Pending</option>
       <option value="COMPLETED">Completed</option>
     </select>
-          {[...tasks]
-            .filter((t) => {
-              if (taskFilter === "PENDING") return t.status === "PENDING";
-              if (taskFilter === "COMPLETED") return t.status === "COMPLETED";
-              return true;
-            })
-            .sort((a, b) => {
-              if (taskFilter === "NEWEST")
-                return new Date(b.createdAt) - new Date(a.createdAt);
-              return new Date(a.createdAt) - new Date(b.createdAt);
-            })
-            .map((t) => (
-              <div key={t._id} style={styles.card}>
-                <h3>{t.title}</h3>
-                <p>{t.description}</p>
 
-                <p>
-                  <strong>Assigned To:</strong>{" "}
-                  {t.assignedTo?.name || "Not Assigned"}
-                </p>
+    {[...tasks]
+      .filter((t) => {
+        if (taskFilter === "PENDING") return t.status === "PENDING";
+        if (taskFilter === "COMPLETED") return t.status === "COMPLETED";
+        return true;
+      })
+      .sort((a, b) => {
+        if (taskFilter === "NEWEST")
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      })
+      .map((t) => (
+        <div
+          key={t._id}
+          style={{
+            ...styles.card,
+            display: "flex",
+            gap: "16px",
+            alignItems: "flex-start",
+            borderLeft: "6px solid #dc2626",
+            transition: "0.25s",
+            cursor: "pointer",
+          }}
+          onMouseEnter={(el) => {
+            el.currentTarget.style.transform = "translateY(-4px)";
+            el.currentTarget.style.boxShadow =
+              "0 20px 40px rgba(220,38,38,0.25)";
+          }}
+          onMouseLeave={(el) => {
+            el.currentTarget.style.transform = "translateY(0)";
+            el.currentTarget.style.boxShadow =
+              "0 10px 25px rgba(0,0,0,0.08)";
+          }}
+        >
+          {/* 📝 TASK ICON */}
+          <div
+            style={{
+              background: "linear-gradient(135deg,#dc2626,#b91c1c)",
+              color: "white",
+              width: "52px",
+              height: "52px",
+              borderRadius: "14px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "24px",
+              boxShadow: "0 6px 14px rgba(220,38,38,.4)",
+              flexShrink: 0,
+            }}
+          >
+            📝
+          </div>
 
-                <p>
-                  <strong>Status:</strong>{" "}
-                  <span style={styles.badge(t.status || "PENDING")}>
-                    {t.status || "PENDING"}
-                  </span>
-                </p>
+          {/* 📄 TASK CONTENT */}
+          <div style={{ flex: 1 }}>
+            {/* Title */}
+            <h3
+              style={{
+                margin: 0,
+                fontSize: "18px",
+                fontWeight: "700",
+                color: "#111827",
+              }}
+            >
+              {t.title}
+            </h3>
 
-                <p>
-                  <strong>Created:</strong> {formatDate(t.createdAt)}
-                </p>
-              </div>
-            ))}
-        </>
-      )}
+            {/* Description */}
+            <p
+              style={{
+                margin: "6px 0",
+                fontSize: "14px",
+                color: "#374151",
+                lineHeight: "1.5",
+              }}
+            >
+              {t.description}
+            </p>
+
+            {/* Assigned */}
+            <p
+              style={{
+                margin: "4px 0",
+                fontSize: "13px",
+                color: "#6b7280",
+              }}
+            >
+              👤 <strong>Assigned:</strong>{" "}
+              {t.assignedTo?.name || "Not Assigned"}
+            </p>
+
+            {/* Status + Date */}
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                flexWrap: "wrap",
+                marginTop: "8px",
+                alignItems: "center",
+              }}
+            >
+              {/* Status Badge */}
+              <span
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "999px",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  color: "white",
+                  background:
+                    t.status === "COMPLETED"
+                      ? "#16a34a"
+                      : t.status === "IN_PROGRESS"
+                      ? "#f59e0b"
+                      : "#dc2626",
+                }}
+              >
+                {t.status || "PENDING"}
+              </span>
+
+              {/* Created Badge */}
+              <span
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: "999px",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  background: "#fee2e2",
+                  color: "#b91c1c",
+                }}
+              >
+                ⏰ {formatDate(t.createdAt)}
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
+  </>
+)}
 
     </div>
   );
