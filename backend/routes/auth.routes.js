@@ -5,26 +5,75 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
+/* ================= REGISTER ================= */
+// (Agar tum SUPER_ADMIN se hi user bana rahe ho, to ye route optional hai)
 router.post("/register", async (req, res) => {
-  const hashed = await bcrypt.hash(req.body.password, 10);
-  const user = await User.create({ ...req.body, password: hashed });
-  res.json(user);
+  try {
+    const { name, mobile, password, role } = req.body;
+
+    if (!mobile || !password) {
+      return res.status(400).json({ message: "Mobile and password are required" });
+    }
+
+    const exists = await User.findOne({ mobile });
+    if (exists) {
+      return res.status(400).json({ message: "Mobile number already exists" });
+    }
+
+    const hashed = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      mobile,
+      password: hashed,
+      role: role || "USER",
+    });
+
+    res.json(user);
+  } catch (err) {
+    console.error("REGISTER ERROR:", err);
+    res.status(500).json({ message: "Register failed" });
+  }
 });
 
+/* ================= LOGIN ================= */
 router.post("/login", async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
-  if (!user) return res.status(401).json({ message: "Invalid credentials" });
+  try {
+    const { mobile, password } = req.body;
 
-  const match = await bcrypt.compare(req.body.password, user.password);
-  if (!match) return res.status(401).json({ message: "Invalid credentials" });
+    if (!mobile || !password) {
+      return res
+        .status(400)
+        .json({ message: "Mobile number and password are required" });
+    }
 
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "1d" }
-  );
+    // 🔴 email → mobile
+    const user = await User.findOne({ mobile });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-  res.json({ token, role: user.role });
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      token,
+      role: user.role,
+      mobile: user.mobile,
+      name: user.name,
+    });
+  } catch (err) {
+    console.error("LOGIN ERROR:", err);
+    res.status(500).json({ message: "Login failed" });
+  }
 });
 
 export default router;

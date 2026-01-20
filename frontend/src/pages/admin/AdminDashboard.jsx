@@ -168,9 +168,9 @@ const loadNotifications = async () => {
 
 const [userForm, setUserForm] = useState({
   name: "",
-  email: "",
+  mobile: "",
   password: "",
-  role: "USER",   // default USER
+  role: "USER",
 });
 
 
@@ -241,26 +241,27 @@ useEffect(() => {
 
   /* ================= CREATE ACTIONS ================= */
 
-  const createUser = async () => {
-    try {
-      await API.post("/users", userForm);
-      alert("User created");
-       setUserForm({
-      name: "",
-      email: "",
-      password: "",
-      role: "USER", 
-           // default wapas USER
-    });
-      loadAll();
-      loadNotifications();   // 🔔 ADD
+ const createUser = async () => {
+  try {
+    await API.post("/users", userForm);
+    alert("User created");
 
-      setActiveTab("Overview");
-    } catch (err) {
-      console.error(err.response?.data);
-      alert(err.response?.data?.message || "Failed to create user");
-    }
-  };
+    setUserForm({
+      name: "",
+      mobile: "",
+      password: "",
+      role: "USER",
+    });
+
+    loadAll();
+    loadNotifications();   // 🔔 ADD
+    setActiveTab("Overview");
+  } catch (err) {
+    console.error(err.response?.data);
+    alert(err.response?.data?.message || "Failed to create user");
+  }
+};
+
 
   const createEvent = async () => {
     try {
@@ -494,13 +495,16 @@ useEffect(() => {
             }
           />
           <input
-            style={styles.input}
-            placeholder="Email"
-            value={userForm.email}
-            onChange={(e) =>
-              setUserForm({ ...userForm, email: e.target.value })
-            }
-          />
+  style={styles.input}
+  type="tel"
+  placeholder="Mobile Number"
+  maxLength={10}
+  value={userForm.mobile}
+  onChange={(e) =>
+    setUserForm({ ...userForm, mobile: e.target.value })
+  }
+/>
+
           <input
             style={styles.input}
             type="password"

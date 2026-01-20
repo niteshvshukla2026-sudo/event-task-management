@@ -7,7 +7,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");   // 🔴 email → mobile
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -20,11 +20,10 @@ const Login = () => {
     try {
       if (isLogin) {
         // ================= LOGIN =================
-       const res = await API.post("/auth/login", {
-  email,
-  password,
-});
-
+        const res = await API.post("/auth/login", {
+          mobile,
+          password,
+        });
 
         // 🔐 Save token and role
         localStorage.setItem("token", res.data.token);
@@ -44,16 +43,16 @@ const Login = () => {
           return;
         }
 
-        await axios.post("http://localhost:5000/api/auth/register", {
+        await API.post("/auth/register", {
           name,
-          email,
+          mobile,
           password,
         });
 
         alert("Registration successful. Please login.");
         setIsLogin(true);
         setName("");
-        setEmail("");
+        setMobile("");
         setPassword("");
         setConfirmPassword("");
       }
@@ -92,14 +91,16 @@ const Login = () => {
             </div>
           )}
 
+          {/* 🔴 Email removed → Mobile Number added */}
           <div style={styles.field}>
-            <label>Email</label>
+            <label>Mobile Number</label>
             <input
               style={styles.input}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              type="tel"
+              value={mobile}
+              onChange={(e) => setMobile(e.target.value)}
+              placeholder="10 digit mobile number"
+              maxLength={10}
               required
             />
           </div>

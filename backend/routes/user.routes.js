@@ -18,23 +18,24 @@ router.post("/", auth, async (req, res) => {
       });
     }
 
-    const { name, email, password, role } = req.body;
+    // 🔴 email → mobile
+    const { name, mobile, password, role } = req.body;
 
-    if (!name || !email || !password) {
+    if (!name || !mobile || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Check duplicate email
-    const exists = await User.findOne({ email });
+    // Check duplicate mobile number
+    const exists = await User.findOne({ mobile });
     if (exists) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res.status(400).json({ message: "Mobile number already exists" });
     }
 
     const hashed = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
-      email,
+      mobile,
       password: hashed,
       role: role || "USER",
     });
@@ -49,7 +50,7 @@ router.post("/", auth, async (req, res) => {
     res.status(201).json({
       _id: user._id,
       name: user.name,
-      email: user.email,
+      mobile: user.mobile,
       role: user.role,
     });
   } catch (err) {
