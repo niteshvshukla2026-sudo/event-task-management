@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import API from "../services/api"; 
+import API from "../services/api";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -7,7 +7,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState("");
-  const [mobile, setMobile] = useState("");   // 🔴 email → mobile
+  const [mobile, setMobile] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -19,24 +19,22 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        // ================= LOGIN =================
+        // LOGIN
         const res = await API.post("/auth/login", {
           mobile,
           password,
         });
 
-        // 🔐 Save token and role
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("role", res.data.role);
 
-        // 🔁 Role based redirect
         if (res.data.role === "ADMIN" || res.data.role === "SUPER_ADMIN") {
           navigate("/admin");
         } else {
           navigate("/tasks");
         }
       } else {
-        // ================= REGISTER =================
+        // REGISTER
         if (password !== confirmPassword) {
           alert("Passwords do not match");
           setLoading(false);
@@ -63,13 +61,23 @@ const Login = () => {
     }
   };
 
+  const inputFocus = (e) => {
+    e.target.style.border = "1px solid #22c55e";
+    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.15)";
+  };
+
+  const inputBlur = (e) => {
+    e.target.style.border = "1px solid #e5e7eb";
+    e.target.style.boxShadow = "none";
+  };
+
   return (
     <div style={styles.page}>
       <div style={styles.card}>
         {/* Logo */}
         <h2 style={styles.title}>
-          <span style={{ color: "#000" }}>trip</span>
-          <span style={{ color: "#E53935" }}>tadka</span>
+          <span style={{ color: "#111827" }}>trip</span>
+          <span style={{ color: "#22c55e" }}>tadka</span>
         </h2>
 
         <p style={styles.subtitle}>
@@ -87,11 +95,12 @@ const Login = () => {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
                 required
+                onFocus={inputFocus}
+                onBlur={inputBlur}
               />
             </div>
           )}
 
-          {/* 🔴 Email removed → Mobile Number added */}
           <div style={styles.field}>
             <label>Mobile Number</label>
             <input
@@ -102,6 +111,8 @@ const Login = () => {
               placeholder="10 digit mobile number"
               maxLength={10}
               required
+              onFocus={inputFocus}
+              onBlur={inputBlur}
             />
           </div>
 
@@ -114,6 +125,8 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
+              onFocus={inputFocus}
+              onBlur={inputBlur}
             />
           </div>
 
@@ -127,12 +140,14 @@ const Login = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
                 required
+                onFocus={inputFocus}
+                onBlur={inputBlur}
               />
             </div>
           )}
 
           <button style={styles.button} disabled={loading}>
-            {loading ? "Please wait..." : isLogin ? "Login" : "Register"}
+            {loading ? "Signing in..." : isLogin ? "Sign in" : "Create account"}
           </button>
         </form>
 
@@ -153,69 +168,80 @@ export default Login;
 
 const styles = {
   page: {
-    height: "100vh",
+    minHeight: "100vh",
+    width: "100%",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "linear-gradient(135deg, #FFEBEE, #FFFFFF)",
+    background: "linear-gradient(135deg, #fff7f3, #ffffff)",
+    fontFamily: "Inter, sans-serif",
+    padding: "16px",
   },
+
   card: {
-    background: "#FFFFFF",
-    padding: "42px",
-    width: "380px",
-    borderRadius: "16px",
-    boxShadow: "0 25px 60px rgba(0,0,0,0.15)",
-    borderTop: "6px solid #E53935",
+    background: "#ffffff",
+    padding: "40px",
+    width: "100%",
+    maxWidth: "420px",
+    borderRadius: "18px",
+    boxShadow: "0 25px 70px rgba(0,0,0,0.08)",
+    textAlign: "center",
   },
+
   title: {
-    textAlign: "center",
-    marginBottom: "8px",
+    fontSize: "clamp(24px, 4vw, 30px)",
     fontWeight: "700",
-    letterSpacing: "0.5px",
-    fontSize: "28px",
+    marginBottom: "6px",
   },
+
   subtitle: {
-    textAlign: "center",
-    color: "#6B7280",
-    marginBottom: "28px",
-    fontSize: "15px",
+    color: "#6b7280",
+    fontSize: "clamp(13px, 3.5vw, 14px)",
+    marginBottom: "26px",
     lineHeight: "1.6",
   },
+
   field: {
     marginBottom: "16px",
-    display: "flex",
-    flexDirection: "column",
+    textAlign: "left",
     fontSize: "14px",
-    color: "#000000",
+    color: "#111827",
   },
+
   input: {
+    width: "100%",
     marginTop: "6px",
-    padding: "12px",
-    borderRadius: "8px",
-    border: "1px solid #E5E7EB",
+    padding: "14px",
+    borderRadius: "10px",
+    border: "1px solid #e5e7eb",
     fontSize: "14px",
     outline: "none",
+    transition: "0.2s",
+    boxSizing: "border-box",
   },
+
   button: {
     width: "100%",
-    padding: "13px",
-    background: "#E53935",
-    color: "#FFFFFF",
+    padding: "14px",
+    background: "linear-gradient(90deg, #22c55e, #16a34a)",
+    color: "white",
     border: "none",
-    borderRadius: "8px",
-    fontSize: "16px",
+    borderRadius: "50px",
+    fontSize: "clamp(14px, 3.5vw, 16px)",
     fontWeight: "600",
     cursor: "pointer",
-    marginTop: "12px",
+    marginTop: "14px",
+    boxShadow: "0 8px 20px rgba(34,197,94,0.3)",
   },
+
   toggle: {
-    marginTop: "20px",
-    textAlign: "center",
-    fontSize: "14px",
-    color: "#000000",
+    marginTop: "18px",
+    fontSize: "clamp(12px, 3vw, 14px)",
+    color: "#374151",
   },
+
   link: {
-    color: "#E53935",
+    color: "#16a34a",
     fontWeight: "600",
     cursor: "pointer",
   },
