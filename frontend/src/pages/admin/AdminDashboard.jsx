@@ -644,47 +644,180 @@ useEffect(() => {
 
 
       {/* ================= CREATE EVENT TEAM ================= */}
-      {activeTab === "Create Event Team" && (
-        <div style={styles.card}>
-          <h2>Create Event Team</h2>
+     {activeTab === "Create Event Team" && (
+  <div
+    style={{
+      ...styles.card,
+      padding: "28px",
+      borderRadius: "18px",
+      boxShadow: "0 20px 40px rgba(220,38,38,0.15)",
+      maxWidth: "900px",
+      margin: "0 auto",
+    }}
+  >
+    {/* Header */}
+    <div style={{ marginBottom: "20px" }}>
+      <h2
+        style={{
+          margin: 0,
+          fontSize: "24px",
+          fontWeight: "700",
+          color: "#111827",
+        }}
+      >
+        👥 Create Event Team
+      </h2>
+      <p style={{ fontSize: "14px", color: "#6b7280" }}>
+        Select an event and choose members to form its team.
+      </p>
+    </div>
 
-          <select
-            style={styles.input}
-            value={teamForm.eventId}
-            onChange={(e) =>
-              setTeamForm({ ...teamForm, eventId: e.target.value })
-            }
-          >
-            <option value="">Select Event</option>
-            {events.map((e) => (
-              <option key={e._id} value={e._id}>
-                {e.title}
-              </option>
-            ))}
-          </select>
+    {/* Select Event */}
+    <div style={{ marginBottom: "18px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Select Event
+      </label>
+      <select
+        style={{
+          ...styles.input,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+        }}
+        value={teamForm.eventId}
+        onChange={(e) =>
+          setTeamForm({ ...teamForm, eventId: e.target.value, members: [] })
+        }
+      >
+        <option value="">Select Event</option>
+        {events.map((e) => (
+          <option key={e._id} value={e._id}>
+            {e.title}
+          </option>
+        ))}
+      </select>
+    </div>
 
-          {users.map((u) => (
-            <div key={u._id}>
-              <input
-                type="checkbox"
-                checked={teamForm.members.includes(u._id)}
-                onChange={() => {
-                  const members = teamForm.members.includes(u._id)
-                    ? teamForm.members.filter((id) => id !== u._id)
-                    : [...teamForm.members, u._id];
+    {/* Members */}
+    <div style={{ marginBottom: "20px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Select Team Members
+      </label>
 
-                  setTeamForm({ ...teamForm, members });
+      <div
+        style={{
+          marginTop: "10px",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gap: "12px",
+        }}
+      >
+        {users.map((u) => {
+          const selected = teamForm.members.includes(u._id);
+
+          return (
+            <div
+              key={u._id}
+              onClick={() => {
+                const members = selected
+                  ? teamForm.members.filter((id) => id !== u._id)
+                  : [...teamForm.members, u._id];
+
+                setTeamForm({ ...teamForm, members });
+              }}
+              style={{
+                padding: "12px 14px",
+                borderRadius: "12px",
+                border: selected
+                  ? "2px solid #dc2626"
+                  : "1px solid #e5e7eb",
+                background: selected ? "#fee2e2" : "#fff",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                boxShadow: selected
+                  ? "0 6px 14px rgba(220,38,38,0.25)"
+                  : "0 2px 6px rgba(0,0,0,0.05)",
+                transition: "0.25s",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  color: "#111827",
                 }}
-              />{" "}
-              {u.name}
-            </div>
-          ))}
+              >
+                {u.name}
+              </span>
 
-          <button style={styles.button} onClick={createTeam}>
-            Create Team
-          </button>
-        </div>
-      )}
+              <span
+                style={{
+                  width: "20px",
+                  height: "20px",
+                  borderRadius: "50%",
+                  background: selected ? "#dc2626" : "#e5e7eb",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "12px",
+                }}
+              >
+                {selected ? "✓" : ""}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+    {/* Info */}
+    <div
+      style={{
+        fontSize: "13px",
+        color: "#6b7280",
+        background: "#fee2e2",
+        padding: "10px 14px",
+        borderRadius: "10px",
+        marginBottom: "20px",
+      }}
+    >
+      🔔 Selected members will be assigned to this event team.
+    </div>
+
+    {/* Create Button */}
+    <button
+      style={{
+        background: "linear-gradient(135deg,#dc2626,#b91c1c)",
+        color: "white",
+        border: "none",
+        padding: "14px 26px",
+        borderRadius: "14px",
+        cursor: "pointer",
+        fontWeight: "600",
+        fontSize: "15px",
+        boxShadow: "0 10px 20px rgba(220,38,38,0.35)",
+        transition: "0.25s",
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = "translateY(-2px)";
+        e.target.style.boxShadow =
+          "0 14px 28px rgba(220,38,38,0.45)";
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = "translateY(0)";
+        e.target.style.boxShadow =
+          "0 10px 20px rgba(220,38,38,0.35)";
+      }}
+      onClick={createTeam}
+    >
+      🚀 Create Team
+    </button>
+  </div>
+)}
+
 
       {/* ================= CREATE TASK ================= */}
   {activeTab === "Create Task" && (
