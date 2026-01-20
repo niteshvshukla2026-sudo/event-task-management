@@ -552,52 +552,163 @@ useEffect(() => {
 
       {/* ================= CREATE USER ================= */}
       {activeTab === "Create User" && currentUser?.role === "SUPER_ADMIN" && (
-  <div style={styles.card}>
-    <h2>Create User</h2>
-          <input
-            style={styles.input}
-            placeholder="Name"
-            value={userForm.name}
-            onChange={(e) =>
-              setUserForm({ ...userForm, name: e.target.value })
-            }
-          />
-          <input
-  style={styles.input}
-  type="tel"
-  placeholder="Mobile Number"
-  maxLength={10}
-  value={userForm.mobile}
-  onChange={(e) =>
-    setUserForm({ ...userForm, mobile: e.target.value })
-  }
-/>
+  <div
+    style={{
+      ...styles.card,
+      padding: "28px",
+      borderRadius: "18px",
+      boxShadow: "0 20px 40px rgba(220,38,38,0.15)",
+      maxWidth: "900px",
+      margin: "0 auto",
+    }}
+  >
+    {/* Header */}
+    <div style={{ marginBottom: "20px" }}>
+      <h2
+        style={{
+          margin: 0,
+          fontSize: "24px",
+          fontWeight: "700",
+          color: "#111827",
+        }}
+      >
+        👤 Create User
+      </h2>
+      <p style={{ fontSize: "14px", color: "#6b7280" }}>
+        Add a new user with mobile number, password and role.
+      </p>
+    </div>
 
-          <input
-            style={styles.input}
-            type="password"
-            placeholder="Password"
-            value={userForm.password}
-            onChange={(e) =>
-              setUserForm({ ...userForm, password: e.target.value })
-            }
-          />
-          <select
-  style={styles.input}
-  value={userForm.role}
-  onChange={(e) =>
-    setUserForm({ ...userForm, role: e.target.value })
-  }
->
-  <option value="USER">User</option>
-  <option value="ADMIN">Admin</option>
-</select>
+    {/* Name */}
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Full Name
+      </label>
+      <input
+        style={{
+          ...styles.input,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+        }}
+        placeholder="Enter full name"
+        value={userForm.name}
+        onChange={(e) =>
+          setUserForm({ ...userForm, name: e.target.value })
+        }
+      />
+    </div>
 
-          <button style={styles.button} onClick={createUser}>
-            Create User
-          </button>
-        </div>
-      )}
+    {/* Mobile */}
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Mobile Number
+      </label>
+      <input
+        style={{
+          ...styles.input,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+        }}
+        type="tel"
+        maxLength={10}
+        placeholder="Enter 10 digit mobile number"
+        value={userForm.mobile}
+        onChange={(e) =>
+          setUserForm({ ...userForm, mobile: e.target.value })
+        }
+      />
+    </div>
+
+    {/* Password */}
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Password
+      </label>
+      <input
+        style={{
+          ...styles.input,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+        }}
+        type="password"
+        placeholder="Enter password"
+        value={userForm.password}
+        onChange={(e) =>
+          setUserForm({ ...userForm, password: e.target.value })
+        }
+      />
+    </div>
+
+    {/* Role */}
+    <div style={{ marginBottom: "20px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Select Role
+      </label>
+      <select
+        style={{
+          ...styles.input,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+        }}
+        value={userForm.role}
+        onChange={(e) =>
+          setUserForm({ ...userForm, role: e.target.value })
+        }
+      >
+        <option value="USER">User</option>
+        <option value="ADMIN">Admin</option>
+      </select>
+    </div>
+
+    {/* Info */}
+    <div
+      style={{
+        fontSize: "13px",
+        color: "#6b7280",
+        background: "#fee2e2",
+        padding: "10px 14px",
+        borderRadius: "10px",
+        marginBottom: "20px",
+      }}
+    >
+      🔐 Password will be securely encrypted before saving.
+    </div>
+
+    {/* Create Button */}
+    <button
+      style={{
+        background: "linear-gradient(135deg,#dc2626,#b91c1c)",
+        color: "white",
+        border: "none",
+        padding: "14px 26px",
+        borderRadius: "14px",
+        cursor: "pointer",
+        fontWeight: "600",
+        fontSize: "15px",
+        boxShadow: "0 10px 20px rgba(220,38,38,0.35)",
+        transition: "0.25s",
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = "translateY(-2px)";
+        e.target.style.boxShadow =
+          "0 14px 28px rgba(220,38,38,0.45)";
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = "translateY(0)";
+        e.target.style.boxShadow =
+          "0 10px 20px rgba(220,38,38,0.35)";
+      }}
+      onClick={createUser}
+    >
+      ➕ Create User
+    </button>
+  </div>
+)}
+
 
       {/* ================= CREATE EVENT ================= */}
      {activeTab === "Create Event" && (
