@@ -388,127 +388,157 @@ useEffect(() => {
   /* ================= UI ================= */
 
   return (
-    <div style={styles.page}>
-     <div style={styles.header}>
-  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-    <div>
-      <div style={styles.logo}>triptadka</div>
-      <div style={styles.subtitle}>Admin Dashboard</div>
-    </div>
-<div style={{ position: "relative", marginRight: "16px" }}>
-  <div
-    onClick={(e) => {
-  e.stopPropagation();
-  setShowNotifications(!showNotifications);
-}}
-    style={{ cursor: "pointer", fontSize: "22px", position: "relative" }}
-  >
-    🔔
-    {unreadCount > 0 && (
-      <span
+  <div style={styles.page}>
+    {/* ================= HEADER ================= */}
+    <div style={styles.header}>
+      <div
         style={{
-          position: "absolute",
-          top: "-6px",
-          right: "-8px",
-          background: "red",
-          color: "white",
-          borderRadius: "50%",
-          padding: "2px 6px",
-          fontSize: "10px"
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
       >
-        {unreadCount}
-      </span>
-    )}
-  </div>
+        {/* LEFT : LOGO */}
+        <div>
+          <div style={styles.logo}>triptadka</div>
+          <div style={styles.subtitle}>Admin Dashboard</div>
+        </div>
 
-  {showNotifications && (
-    <div
-      style={{
-        position: "absolute",
-        right: 0,
-        top: "30px",
-        width: "300px",
-        background: "white",
-        boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-        borderRadius: "8px",
-        zIndex: 1000,
-        maxHeight: "300px",
-        overflowY: "auto"
-      }}
-    >
-      {notifications.length === 0 ? (
-        <p style={{ padding: "10px" }}>No notifications</p>
-      ) : (
-        notifications.map((n) => (
-          <div
-            key={n._id}
-   onClick={async (e) => {
-  e.stopPropagation();
-  await API.put(`/notifications/${n._id}/read`);
-  loadNotifications();
-  setShowNotifications(false);
-}}
+        {/* RIGHT : NOTIFICATION + LOGOUT */}
+        <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          {/* 🔔 Notification */}
+          <div style={{ position: "relative" }}>
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowNotifications(!showNotifications);
+              }}
+              style={{
+                cursor: "pointer",
+                fontSize: "18px",
+                background: "#fee2e2",
+                padding: "10px",
+                borderRadius: "50%",
+                position: "relative",
+                boxShadow: "0 6px 14px rgba(220,38,38,0.25)",
+              }}
+            >
+              🔔
+              {unreadCount > 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "4px",
+                    right: "4px",
+                    background: "#dc2626",
+                    color: "white",
+                    borderRadius: "50%",
+                    padding: "2px 6px",
+                    fontSize: "10px",
+                    fontWeight: "600",
+                  }}
+                >
+                  {unreadCount}
+                </span>
+              )}
+            </div>
 
+            {showNotifications && (
+              <div
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: "50px",
+                  width: "320px",
+                  background: "white",
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+                  borderRadius: "12px",
+                  zIndex: 1000,
+                  maxHeight: "320px",
+                  overflowY: "auto",
+                }}
+              >
+                {notifications.length === 0 ? (
+                  <p style={{ padding: "14px", color: "#6b7280" }}>
+                    No notifications
+                  </p>
+                ) : (
+                  notifications.map((n) => (
+                    <div
+                      key={n._id}
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        await API.put(`/notifications/${n._id}/read`);
+                        loadNotifications();
+                        setShowNotifications(false);
+                      }}
+                      style={{
+                        padding: "12px",
+                        borderBottom: "1px solid #f3f4f6",
+                        background: n.isRead ? "#ffffff" : "#ffe4e6",
+                        cursor: "pointer",
+                        transition: "0.2s",
+                      }}
+                    >
+                      <div style={{ fontSize: "14px", fontWeight: "500" }}>
+                        {n.message}
+                      </div>
+                      <div style={{ fontSize: "11px", color: "#6b7280" }}>
+                        {formatDate(n.createdAt)}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
 
+          {/* LOGOUT */}
+          <button
+            onClick={handleLogout}
             style={{
-              padding: "10px",
-              borderBottom: "1px solid #eee",
-              background: n.isRead ? "#f9f9f9" : "#ffe4e6",
-              cursor: "pointer"
+              background: "linear-gradient(90deg,#dc2626,#b91c1c)",
+              color: "white",
+              border: "none",
+              padding: "10px 22px",
+              borderRadius: "999px",
+              cursor: "pointer",
+              fontWeight: "600",
+              boxShadow: "0 8px 20px rgba(220,38,38,.35)",
             }}
           >
-            <div style={{ fontSize: "14px" }}>{n.message}</div>
-            <div style={{ fontSize: "11px", color: "#666" }}>
-              {formatDate(n.createdAt)}
-            </div>
-          </div>
-        ))
-      )}
+            Logout
+          </button>
+        </div>
+      </div>
     </div>
-  )}
-</div>
 
-    <button
-      onClick={handleLogout}
-      style={{
-        background: "#dc2626",
-        color: "white",
-        border: "none",
-        padding: "8px 14px",
-        borderRadius: "8px",
-        cursor: "pointer",
-      }}
-    >
-      Logout
-    </button>
-  </div>
-</div>
+    {/* ================= TABS ================= */}
+    <div style={styles.tabs}>
+      {visibleTabs.map((t) => (
+        <button
+          key={t}
+          style={{
+            ...styles.tab,
+            ...(activeTab === t ? styles.tabActive : {}),
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = "translateY(-3px)";
+            e.target.style.boxShadow = "0 8px 20px rgba(220,38,38,0.25)";
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = "translateY(0)";
+            e.target.style.boxShadow = "none";
+          }}
+          onClick={() => setActiveTab(t)}
+        >
+          {t}
+        </button>
+      ))}
+    </div>
 
-<div style={styles.tabs}>
-  {visibleTabs.map((t) => (
-    <button
-      key={t}
-      style={{
-        ...styles.tab,
-        ...(activeTab === t ? styles.tabActive : {}),
-      }}
-      onMouseEnter={(e) => {
-        e.target.style.transform = "translateY(-2px)";
-      }}
-      onMouseLeave={(e) => {
-        e.target.style.transform = "translateY(0)";
-      }}
-      onClick={() => setActiveTab(t)}
-    >
-      {t}
-    </button>
-  ))}
-</div>
+    {error && <div style={styles.error}>{error}</div>}
 
-
-
-      {error && <div style={styles.error}>{error}</div>}
 
       {/* ================= OVERVIEW ================= */}
    {activeTab === "Overview" && (
