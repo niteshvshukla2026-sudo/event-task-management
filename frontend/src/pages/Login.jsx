@@ -19,7 +19,6 @@ const Login = () => {
 
     try {
       if (isLogin) {
-        // LOGIN
         const res = await API.post("/auth/login", {
           mobile,
           password,
@@ -34,7 +33,6 @@ const Login = () => {
           navigate("/tasks");
         }
       } else {
-        // REGISTER
         if (password !== confirmPassword) {
           alert("Passwords do not match");
           setLoading(false);
@@ -62,8 +60,8 @@ const Login = () => {
   };
 
   const inputFocus = (e) => {
-    e.target.style.border = "1px solid #22c55e";
-    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.15)";
+    e.target.style.border = "1px solid #dc2626";
+    e.target.style.boxShadow = "0 0 0 3px rgba(220,38,38,0.2)";
   };
 
   const inputBlur = (e) => {
@@ -77,7 +75,7 @@ const Login = () => {
         {/* Logo */}
         <h2 style={styles.title}>
           <span style={{ color: "#111827" }}>trip</span>
-          <span style={{ color: "#22c55e" }}>tadka</span>
+          <span style={{ color: "#dc2626" }}>tadka</span>
         </h2>
 
         <p style={styles.subtitle}>
@@ -173,7 +171,7 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "linear-gradient(135deg, #fff7f3, #ffffff)",
+    background: "linear-gradient(135deg, #fff1f2, #ffffff)",
     fontFamily: "Inter, sans-serif",
     padding: "16px",
   },
@@ -186,6 +184,7 @@ const styles = {
     borderRadius: "18px",
     boxShadow: "0 25px 70px rgba(0,0,0,0.08)",
     textAlign: "center",
+    borderTop: "6px solid #dc2626",
   },
 
   title: {
@@ -223,7 +222,7 @@ const styles = {
   button: {
     width: "100%",
     padding: "14px",
-    background: "linear-gradient(90deg, #22c55e, #16a34a)",
+    background: "linear-gradient(90deg, #dc2626, #b91c1c)",
     color: "white",
     border: "none",
     borderRadius: "50px",
@@ -231,7 +230,7 @@ const styles = {
     fontWeight: "600",
     cursor: "pointer",
     marginTop: "14px",
-    boxShadow: "0 8px 20px rgba(34,197,94,0.3)",
+    boxShadow: "0 8px 20px rgba(220,38,38,0.35)",
   },
 
   toggle: {
@@ -241,7 +240,7 @@ const styles = {
   },
 
   link: {
-    color: "#16a34a",
+    color: "#dc2626",
     fontWeight: "600",
     cursor: "pointer",
   },
