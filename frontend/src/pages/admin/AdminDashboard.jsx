@@ -782,9 +782,15 @@ if (team && team.members && team.members.length > 0) {
      {/* ================= EVENTS ================= */}
 {activeTab === "Events" && (
   <>
-    {/* Event Filter */}
+    {/* 🔽 Event Filter */}
     <select
-      style={styles.input}
+      style={{
+        ...styles.input,
+        maxWidth: "260px",
+        marginBottom: "20px",
+        borderRadius: "12px",
+        boxShadow: "0 6px 14px rgba(0,0,0,0.08)",
+      }}
       value={eventFilter}
       onChange={(e) => setEventFilter(e.target.value)}
     >
@@ -799,13 +805,100 @@ if (team && team.members && team.members.length > 0) {
           : new Date(a.createdAt) - new Date(b.createdAt)
       )
       .map((e) => (
-        <div key={e._id} style={styles.card}>
-          <h3>{e.title}</h3>
-          <p>{e.venue}</p>
-          <p>{e.description}</p>
-          <p>
-            <strong>Created:</strong> {formatDate(e.createdAt)}
-          </p>
+        <div
+          key={e._id}
+          style={{
+            ...styles.card,
+            display: "flex",
+            gap: "16px",
+            alignItems: "flex-start",
+            borderLeft: "6px solid #dc2626",
+            transition: "0.25s",
+            cursor: "pointer",
+          }}
+          onMouseEnter={(el) => {
+            el.currentTarget.style.transform = "translateY(-4px)";
+            el.currentTarget.style.boxShadow =
+              "0 20px 40px rgba(220,38,38,0.25)";
+          }}
+          onMouseLeave={(el) => {
+            el.currentTarget.style.transform = "translateY(0)";
+            el.currentTarget.style.boxShadow =
+              "0 10px 25px rgba(0,0,0,0.08)";
+          }}
+        >
+          {/* 📅 EVENT ICON (Same for all events) */}
+          <div
+            style={{
+              background: "linear-gradient(135deg,#dc2626,#b91c1c)",
+              color: "white",
+              width: "52px",
+              height: "52px",
+              borderRadius: "14px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "24px",
+              boxShadow: "0 6px 14px rgba(220,38,38,.4)",
+              flexShrink: 0,
+            }}
+          >
+            📅
+          </div>
+
+          {/* 📄 EVENT CONTENT */}
+          <div style={{ flex: 1 }}>
+            <h3
+              style={{
+                margin: 0,
+                fontSize: "18px",
+                fontWeight: "700",
+                color: "#111827",
+              }}
+            >
+              {e.title}
+            </h3>
+
+            <p
+              style={{
+                margin: "4px 0",
+                color: "#6b7280",
+                fontSize: "14px",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              📍 {e.venue}
+            </p>
+
+            <p
+              style={{
+                margin: "8px 0",
+                fontSize: "14px",
+                color: "#374151",
+                lineHeight: "1.5",
+              }}
+            >
+              {e.description}
+            </p>
+
+            {/* 🏷 Created Badge */}
+            <div
+              style={{
+                display: "inline-block",
+                marginTop: "8px",
+                padding: "6px 14px",
+                background: "#fee2e2",
+                color: "#b91c1c",
+                borderRadius: "999px",
+                fontSize: "12px",
+                fontWeight: "600",
+              }}
+            >
+              Created: {formatDate(e.createdAt)}
+            </div>
+          </div>
         </div>
       ))}
   </>
