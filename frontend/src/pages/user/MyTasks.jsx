@@ -20,99 +20,132 @@ const styles = {
   page: {
     minHeight: "100vh",
     padding: "24px",
-    background: "#fff5f5",
-    fontFamily: "Inter, system-ui, Arial",
+    background: "linear-gradient(135deg,#fff5f5,#ffe4e6)",
+    fontFamily: "Inter, system-ui",
   },
+
   header: {
-  marginBottom: "24px",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-},
+    background: "white",
+    padding: "18px 24px",
+    borderRadius: "16px",
+    boxShadow: "0 15px 40px rgba(220,38,38,0.12)",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "24px",
+  },
 
   logo: {
-    fontSize: "28px",
-    fontWeight: "700",
-    color: "#e53935",
+    fontSize: "26px",
+    fontWeight: "800",
+    color: "#dc2626",
   },
+
   subtitle: {
+    fontSize: "13px",
     color: "#6b7280",
-    marginTop: "4px",
   },
+
   userName: {
-    marginTop: "10px",
-    fontSize: "16px",
+    marginTop: "6px",
+    fontSize: "15px",
     fontWeight: "600",
   },
-  filter: {
-    width: "100%",
-    padding: "10px",
-    borderRadius: "8px",
-    border: "1px solid #ddd",
-    marginBottom: "12px",
-  },
+
   card: {
     background: "white",
-    padding: "18px",
-    borderRadius: "14px",
-    marginBottom: "16px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    padding: "22px",
+    borderRadius: "18px",
+    marginBottom: "20px",
+    boxShadow: "0 12px 30px rgba(0,0,0,0.08)",
+    borderLeft: "6px solid #dc2626",
+    transition: "0.25s",
   },
-  event: {
+
+  sectionTitle: {
+    fontSize: "20px",
+    fontWeight: "700",
+    color: "#dc2626",
+    marginBottom: "14px",
+  },
+
+  filter: {
+    width: "100%",
+    padding: "14px",
+    borderRadius: "12px",
+    border: "1px solid #e5e7eb",
+    marginBottom: "14px",
     fontSize: "14px",
-    color: "#e53935",
-    marginBottom: "6px",
-    fontWeight: "600",
+    outline: "none",
   },
+
+  btn: {
+    padding: "12px 20px",
+    borderRadius: "12px",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "600",
+    transition: "0.25s",
+  },
+
+  assignBtn: {
+    background: "linear-gradient(135deg,#dc2626,#b91c1c)",
+    color: "white",
+    boxShadow: "0 8px 20px rgba(220,38,38,0.35)",
+  },
+
+  completed: {
+    background: "linear-gradient(135deg,#16a34a,#22c55e)",
+    color: "white",
+    boxShadow: "0 8px 20px rgba(34,197,94,0.35)",
+  },
+
+  event: {
+    fontSize: "13px",
+    color: "#dc2626",
+    fontWeight: "600",
+    marginBottom: "6px",
+  },
+
   taskTitle: {
     fontSize: "18px",
-    fontWeight: "600",
+    fontWeight: "700",
+    marginBottom: "4px",
   },
+
   desc: {
     color: "#4b5563",
-    marginTop: "6px",
+    fontSize: "14px",
   },
-  status: {
-    marginTop: "10px",
+
+  statusChip: (status) => ({
+    display: "inline-block",
+    padding: "4px 12px",
+    borderRadius: "20px",
+    fontSize: "12px",
     fontWeight: "600",
-  },
+    background:
+      status === "COMPLETED" ? "#dcfce7" : "#fee2e2",
+    color:
+      status === "COMPLETED" ? "#166534" : "#991b1b",
+    marginTop: "6px",
+  }),
+
   date: {
     marginTop: "6px",
     fontSize: "12px",
     color: "#6b7280",
   },
-  btnRow: {
-    display: "flex",
-    gap: "10px",
-    marginTop: "12px",
-  },
-  btn: {
-    padding: "8px 14px",
-    borderRadius: "8px",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "13px",
-  },
-  completed: {
-    background: "#22c55e",
-    color: "white",
-  },
-  assignBtn: {
-    background: "#e53935",
-    color: "white",
-  },
+
   empty: {
     marginTop: "40px",
     textAlign: "center",
     color: "#6b7280",
-  },
-  sectionTitle: {
-    fontSize: "18px",
-    fontWeight: "700",
-    marginBottom: "10px",
-    color: "#e53935",
+    fontSize: "16px",
   },
 };
+
 
 /* ================= COMPONENT ================= */
 
@@ -370,62 +403,50 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
 
       {/* ================= ASSIGN TASK SECTION ================= */}
       <div style={styles.card}>
-        <div style={styles.sectionTitle}>Assign New Task</div>
+  <div style={styles.sectionTitle}>📝 Assign New Task</div>
 
-        <form onSubmit={assignTask}>
-          <select
-            required
-            value={eventId}
-            onChange={handleEventChange}
-            style={styles.filter}
-          >
-            <option value="">Select Event</option>
-            {events.map((e) => (
-              <option key={e._id} value={e._id}>
-                {e.title}
-              </option>
-            ))}
-          </select>
+  <form onSubmit={assignTask}>
+    <select style={styles.filter} value={eventId} onChange={handleEventChange} required>
+      <option value="">Select Event</option>
+      {events.map(e => (
+        <option key={e._id} value={e._id}>{e.title}</option>
+      ))}
+    </select>
 
-          <select
-            required
-            value={assignedTo}
-            onChange={(e) => setAssignedTo(e.target.value)}
-            style={styles.filter}
-            disabled={!eventId}
-          >
-            <option value="">Assign To (Team Member)</option>
-            {members.map((m) => (
-              <option key={m._id} value={m._id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
+    <select
+      style={styles.filter}
+      value={assignedTo}
+      onChange={(e) => setAssignedTo(e.target.value)}
+      disabled={!eventId}
+      required
+    >
+      <option value="">Assign To Team Member</option>
+      {members.map(m => (
+        <option key={m._id} value={m._id}>{m.name}</option>
+      ))}
+    </select>
 
-          <input
-            style={styles.filter}
-            placeholder="Task Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
+    <input
+      style={styles.filter}
+      placeholder="Task Title"
+      value={title}
+      onChange={(e) => setTitle(e.target.value)}
+      required
+    />
 
-          <textarea
-            style={styles.filter}
-            placeholder="Task Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
+    <textarea
+      style={styles.filter}
+      placeholder="Task Description"
+      value={description}
+      onChange={(e) => setDescription(e.target.value)}
+      required
+    />
 
-          <button
-            type="submit"
-            style={{ ...styles.btn, ...styles.assignBtn }}
-          >
-            Assign Task
-          </button>
-        </form>
-      </div>
+    <button type="submit" style={{ ...styles.btn, ...styles.assignBtn }}>
+      ➕ Assign Task
+    </button>
+  </form>
+</div>
 
       {/* ================= FILTER ================= */}
       <select
@@ -466,10 +487,10 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
               👤 Assigned By: {task.assignedBy?.name || "Admin"}
             </div>
 
-            <div style={styles.status}>
-              Status:{" "}
-              {task.status === "COMPLETED" ? "✅ Completed" : "⏳ Pending"}
-            </div>
+           <div style={styles.statusChip(task.status)}>
+  {task.status === "COMPLETED" ? "✅ Completed" : "⏳ Pending"}
+</div>
+
 
             <div style={styles.date}>
               🕒 Created: {formatDate(task.createdAt)}
