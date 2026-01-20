@@ -600,44 +600,139 @@ useEffect(() => {
       )}
 
       {/* ================= CREATE EVENT ================= */}
-      {activeTab === "Create Event" && (
-  <div style={styles.card}>
-    <h2>Create Event</h2>
+     {activeTab === "Create Event" && (
+  <div
+    style={{
+      ...styles.card,
+      padding: "28px",
+      borderRadius: "18px",
+      boxShadow: "0 20px 40px rgba(220,38,38,0.15)",
+      maxWidth: "900px",
+      margin: "0 auto",
+    }}
+  >
+    {/* Header */}
+    <div style={{ marginBottom: "20px" }}>
+      <h2
+        style={{
+          margin: 0,
+          fontSize: "24px",
+          fontWeight: "700",
+          color: "#111827",
+        }}
+      >
+        📅 Create Event
+      </h2>
+      <p style={{ fontSize: "14px", color: "#6b7280" }}>
+        Add a new event with venue and description.
+      </p>
+    </div>
 
-    <input
-      style={styles.input}
-      placeholder="Event Title"
-      value={eventForm.title}
-      onChange={(e) =>
-        setEventForm({ ...eventForm, title: e.target.value })
-      }
-    />
+    {/* Event Title */}
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Event Title
+      </label>
+      <input
+        style={{
+          ...styles.input,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+        }}
+        placeholder="Enter event title"
+        value={eventForm.title}
+        onChange={(e) =>
+          setEventForm({ ...eventForm, title: e.target.value })
+        }
+      />
+    </div>
 
-    <input
-      style={styles.input}
-      placeholder="Venue"
-      value={eventForm.venue}
-      onChange={(e) =>
-        setEventForm({ ...eventForm, venue: e.target.value })
-      }
-    />
+    {/* Venue */}
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Venue
+      </label>
+      <input
+        style={{
+          ...styles.input,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+        }}
+        placeholder="Enter venue"
+        value={eventForm.venue}
+        onChange={(e) =>
+          setEventForm({ ...eventForm, venue: e.target.value })
+        }
+      />
+    </div>
 
-    <textarea
-      style={styles.textarea}
-      placeholder="Description"
-      value={eventForm.description}
-      onChange={(e) =>
-        setEventForm({ ...eventForm, description: e.target.value })
-      }
-    />
+    {/* Description */}
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Description
+      </label>
+      <textarea
+        style={{
+          ...styles.textarea,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+          minHeight: "100px",
+        }}
+        placeholder="Write event description..."
+        value={eventForm.description}
+        onChange={(e) =>
+          setEventForm({ ...eventForm, description: e.target.value })
+        }
+      />
+    </div>
 
-    {/* Time will be auto captured by backend using timestamps */}
-    <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "6px" }}>
+    {/* Info */}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        fontSize: "13px",
+        color: "#6b7280",
+        background: "#fee2e2",
+        padding: "10px 14px",
+        borderRadius: "10px",
+        marginBottom: "20px",
+      }}
+    >
       📅 Event date & time will be saved automatically.
-    </p>
+    </div>
 
-    <button style={styles.button} onClick={createEvent}>
-      Create Event
+    {/* Create Button */}
+    <button
+      style={{
+        background: "linear-gradient(135deg,#dc2626,#b91c1c)",
+        color: "white",
+        border: "none",
+        padding: "14px 26px",
+        borderRadius: "14px",
+        cursor: "pointer",
+        fontWeight: "600",
+        fontSize: "15px",
+        boxShadow: "0 10px 20px rgba(220,38,38,0.35)",
+        transition: "0.25s",
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = "translateY(-2px)";
+        e.target.style.boxShadow =
+          "0 14px 28px rgba(220,38,38,0.45)";
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = "translateY(0)";
+        e.target.style.boxShadow =
+          "0 10px 20px rgba(220,38,38,0.35)";
+      }}
+      onClick={createEvent}
+    >
+      ➕ Create Event
     </button>
   </div>
 )}
