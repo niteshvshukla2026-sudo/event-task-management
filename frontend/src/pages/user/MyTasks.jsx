@@ -156,6 +156,7 @@ const UserDashboard = () => {
   const [error, setError] = useState("");
 const [notifications, setNotifications] = useState([]);
 const [showNotifications, setShowNotifications] = useState(false);
+const [showAssignForm, setShowAssignForm] = useState(false);
 
   const navigate = useNavigate();
 
@@ -402,51 +403,87 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* ================= ASSIGN TASK SECTION ================= */}
-      <div style={styles.card}>
-  <div style={styles.sectionTitle}>📝 Assign New Task</div>
+      <button
+  onClick={() => setShowAssignForm(!showAssignForm)}
+  style={{
+    background: "linear-gradient(135deg,#dc2626,#b91c1c)",
+    color: "white",
+    border: "none",
+    padding: "14px 22px",
+    borderRadius: "14px",
+    fontSize: "15px",
+    fontWeight: "600",
+    cursor: "pointer",
+    boxShadow: "0 10px 25px rgba(220,38,38,0.35)",
+    marginBottom: "20px",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px"
+  }}
+>
+  {showAssignForm ? "✖ Close Assign Form" : "➕ Assign New Task"}
+</button>
 
-  <form onSubmit={assignTask}>
-    <select style={styles.filter} value={eventId} onChange={handleEventChange} required>
-      <option value="">Select Event</option>
-      {events.map(e => (
-        <option key={e._id} value={e._id}>{e.title}</option>
-      ))}
-    </select>
+      {showAssignForm && (
+  <div style={styles.card}>
+    <div style={styles.sectionTitle}>📝 Assign New Task</div>
 
-    <select
-      style={styles.filter}
-      value={assignedTo}
-      onChange={(e) => setAssignedTo(e.target.value)}
-      disabled={!eventId}
-      required
-    >
-      <option value="">Assign To Team Member</option>
-      {members.map(m => (
-        <option key={m._id} value={m._id}>{m.name}</option>
-      ))}
-    </select>
+    <form onSubmit={assignTask}>
+      <select
+        required
+        value={eventId}
+        onChange={handleEventChange}
+        style={styles.filter}
+      >
+        <option value="">Select Event</option>
+        {events.map((e) => (
+          <option key={e._id} value={e._id}>
+            {e.title}
+          </option>
+        ))}
+      </select>
 
-    <input
-      style={styles.filter}
-      placeholder="Task Title"
-      value={title}
-      onChange={(e) => setTitle(e.target.value)}
-      required
-    />
+      <select
+        required
+        value={assignedTo}
+        onChange={(e) => setAssignedTo(e.target.value)}
+        style={styles.filter}
+        disabled={!eventId}
+      >
+        <option value="">Assign To Team Member</option>
+        {members.map((m) => (
+          <option key={m._id} value={m._id}>
+            {m.name}
+          </option>
+        ))}
+      </select>
 
-    <textarea
-      style={styles.filter}
-      placeholder="Task Description"
-      value={description}
-      onChange={(e) => setDescription(e.target.value)}
-      required
-    />
+      <input
+        style={styles.filter}
+        placeholder="Task Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        required
+      />
 
-    <button type="submit" style={{ ...styles.btn, ...styles.assignBtn }}>
-      ➕ Assign Task
-    </button>
-  </form>
-</div>
+      <textarea
+        style={styles.filter}
+        placeholder="Task Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        required
+      />
+
+      <button
+        type="submit"
+        style={{ ...styles.btn, ...styles.assignBtn }}
+      >
+        ➕ Assign Task
+      </button>
+    </form>
+  </div>
+)}
+
 
       {/* ================= FILTER ================= */}
       <select
