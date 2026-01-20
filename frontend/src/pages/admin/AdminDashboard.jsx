@@ -17,80 +17,112 @@ const formatDate = (date) =>
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#fff5f5",
+    background: "linear-gradient(135deg,#fff1f2,#ffe4e6,#ffffff)",
     padding: "24px",
     fontFamily: "Inter, system-ui",
   },
+
   header: {
-    marginBottom: "20px",
+    background: "white",
+    padding: "20px 24px",
+    borderRadius: "16px",
+    marginBottom: "24px",
+    boxShadow: "0 12px 30px rgba(0,0,0,.08)",
   },
+
   logo: {
     fontSize: "28px",
-    fontWeight: "700",
-    color: "#e53935",
+    fontWeight: "800",
+    color: "#dc2626",
   },
+
   subtitle: {
     color: "#6b7280",
+    fontSize: "13px",
   },
+
   tabs: {
     display: "flex",
     gap: "10px",
     flexWrap: "wrap",
     marginBottom: "24px",
   },
+
   tab: {
-    padding: "8px 16px",
-    borderRadius: "20px",
-    border: "1px solid #e53935",
-    background: "white",
+    padding: "10px 18px",
+    borderRadius: "999px",
+    border: "1px solid #fecaca",
+    background: "#fff",
+    color: "#dc2626",
     cursor: "pointer",
+    fontWeight: "600",
+    transition: "0.25s",
   },
+
   tabActive: {
-    background: "#e53935",
-    color: "white",
-  },
-  card: {
-    background: "white",
-    padding: "20px",
-    borderRadius: "14px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-    marginBottom: "20px",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px,1fr))",
-    gap: "16px",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    marginTop: "10px",
-    borderRadius: "8px",
-    border: "1px solid #ddd",
-  },
-  textarea: {
-    width: "100%",
-    padding: "10px",
-    marginTop: "10px",
-    borderRadius: "8px",
-    border: "1px solid #ddd",
-  },
-  button: {
-    marginTop: "14px",
-    background: "#e53935",
+    background: "linear-gradient(90deg,#dc2626,#b91c1c)",
     color: "white",
     border: "none",
-    padding: "12px",
-    borderRadius: "8px",
+    boxShadow: "0 8px 20px rgba(220,38,38,.35)",
+  },
+
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+    gap: "20px",
+  },
+
+  card: {
+    background: "white",
+    padding: "22px",
+    borderRadius: "18px",
+    boxShadow: "0 15px 35px rgba(0,0,0,.08)",
+    marginBottom: "20px",
+  },
+
+  statCard: {
+    background: "linear-gradient(135deg,#dc2626,#ef4444)",
+    color: "white",
+    padding: "22px",
+    borderRadius: "18px",
+    boxShadow: "0 15px 35px rgba(220,38,38,.4)",
+    fontSize: "18px",
+    fontWeight: "700",
+  },
+
+  input: {
+    width: "100%",
+    padding: "14px",
+    marginTop: "10px",
+    borderRadius: "10px",
+    border: "1px solid #e5e7eb",
+    fontSize: "14px",
+  },
+
+  textarea: {
+    width: "100%",
+    padding: "14px",
+    marginTop: "10px",
+    borderRadius: "10px",
+    border: "1px solid #e5e7eb",
+    fontSize: "14px",
+  },
+
+  button: {
+    marginTop: "16px",
+    background: "linear-gradient(90deg,#dc2626,#b91c1c)",
+    color: "white",
+    border: "none",
+    padding: "12px 20px",
+    borderRadius: "30px",
     cursor: "pointer",
+    fontWeight: "600",
+    boxShadow: "0 8px 20px rgba(220,38,38,.35)",
   },
-  error: {
-    color: "red",
-    marginBottom: "10px",
-  },
+
   badge: (status) => ({
     padding: "4px 12px",
-    borderRadius: "14px",
+    borderRadius: "999px",
     fontSize: "12px",
     color: "white",
     background:
@@ -453,14 +485,19 @@ useEffect(() => {
   </div>
 </div>
 
-
-      <div style={styles.tabs}>
+<div style={styles.tabs}>
   {visibleTabs.map((t) => (
     <button
       key={t}
       style={{
         ...styles.tab,
         ...(activeTab === t ? styles.tabActive : {}),
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = "translateY(-2px)";
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = "translateY(0)";
       }}
       onClick={() => setActiveTab(t)}
     >
@@ -470,17 +507,18 @@ useEffect(() => {
 </div>
 
 
+
       {error && <div style={styles.error}>{error}</div>}
 
       {/* ================= OVERVIEW ================= */}
-      {activeTab === "Overview" && (
-        <div style={styles.grid}>
-          <div style={styles.card}>Total Events: {events.length}</div>
-          <div style={styles.card}>Total Users: {users.length}</div>
-          <div style={styles.card}>Total Tasks: {tasks.length}</div>
-          <div style={styles.card}>Total Teams: {teams.length}</div>
-        </div>
-      )}
+   {activeTab === "Overview" && (
+  <div style={styles.grid}>
+    <div style={styles.statCard}>📅 Total Events<br />{events.length}</div>
+    <div style={styles.statCard}>👥 Total Users<br />{users.length}</div>
+    <div style={styles.statCard}>📋 Total Tasks<br />{tasks.length}</div>
+    <div style={styles.statCard}>👨‍👩‍👧‍👦 Total Teams<br />{teams.length}</div>
+  </div>
+)}
 
       {/* ================= CREATE USER ================= */}
       {activeTab === "Create User" && currentUser?.role === "SUPER_ADMIN" && (
