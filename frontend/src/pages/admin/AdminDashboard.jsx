@@ -687,91 +687,190 @@ useEffect(() => {
       )}
 
       {/* ================= CREATE TASK ================= */}
-   {activeTab === "Create Task" && (
-  <div style={styles.card}>
-    <h2>Create Task</h2>
+  {activeTab === "Create Task" && (
+  <div
+    style={{
+      ...styles.card,
+      padding: "28px",
+      borderRadius: "18px",
+      boxShadow: "0 20px 40px rgba(220,38,38,0.15)",
+      maxWidth: "900px",
+      margin: "0 auto",
+    }}
+  >
+    {/* Header */}
+    <div style={{ marginBottom: "20px" }}>
+      <h2
+        style={{
+          margin: 0,
+          fontSize: "24px",
+          fontWeight: "700",
+          color: "#111827",
+        }}
+      >
+        📝 Create Task
+      </h2>
+      <p style={{ fontSize: "14px", color: "#6b7280" }}>
+        Create and assign a task to your team for a selected event.
+      </p>
+    </div>
 
     {/* Task Title */}
-    <input
-      style={styles.input}
-      placeholder="Task Title"
-      value={taskForm.title}
-      onChange={(e) =>
-        setTaskForm({ ...taskForm, title: e.target.value })
-      }
-    />
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Task Title
+      </label>
+      <input
+        style={{
+          ...styles.input,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+        }}
+        placeholder="Enter task title"
+        value={taskForm.title}
+        onChange={(e) =>
+          setTaskForm({ ...taskForm, title: e.target.value })
+        }
+      />
+    </div>
 
     {/* Task Description */}
-    <textarea
-      style={styles.textarea}
-      placeholder="Task Description"
-      value={taskForm.description}
-      onChange={(e) =>
-        setTaskForm({ ...taskForm, description: e.target.value })
-      }
-    />
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Task Description
+      </label>
+      <textarea
+        style={{
+          ...styles.textarea,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+          minHeight: "90px",
+        }}
+        placeholder="Write task details..."
+        value={taskForm.description}
+        onChange={(e) =>
+          setTaskForm({ ...taskForm, description: e.target.value })
+        }
+      />
+    </div>
 
     {/* Select Event */}
-    <select
-      style={styles.input}
-      value={taskForm.eventId}
-      onChange={(e) => {
-        const eventId = e.target.value;
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Select Event
+      </label>
+      <select
+        style={{
+          ...styles.input,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+        }}
+        value={taskForm.eventId}
+        onChange={(e) => {
+          const eventId = e.target.value;
 
-        setTaskForm({
-          ...taskForm,
-          eventId,
-          assignedTo: "",
-        });
+          setTaskForm({
+            ...taskForm,
+            eventId,
+            assignedTo: "",
+          });
 
-        // 🔥 Event ke basis pe team nikalna
-const team = teams.find(
-  (t) => (t.event?._id || t.event).toString() === eventId.toString()
-);
+          const team = teams.find(
+            (t) => (t.event?._id || t.event).toString() === eventId.toString()
+          );
 
-if (team && team.members && team.members.length > 0) {
-  setFilteredUsers(team.members);  // direct populated users
-} else {
-  setFilteredUsers([]);
-}
-
-
-
-      }}
-    >
-      <option value="">Select Event</option>
-      {events.map((e) => (
-        <option key={e._id} value={e._id}>
-          {e.title}
-        </option>
-      ))}
-    </select>
+          if (team && team.members && team.members.length > 0) {
+            setFilteredUsers(team.members);
+          } else {
+            setFilteredUsers([]);
+          }
+        }}
+      >
+        <option value="">Select Event</option>
+        {events.map((e) => (
+          <option key={e._id} value={e._id}>
+            {e.title}
+          </option>
+        ))}
+      </select>
+    </div>
 
     {/* Assign User */}
-    <select
-      style={styles.input}
-      value={taskForm.assignedTo}
-      disabled={!taskForm.eventId}
-      onChange={(e) =>
-        setTaskForm({ ...taskForm, assignedTo: e.target.value })
-      }
-    >
-      <option value="">Assign User</option>
-      {filteredUsers.map((u) => (
-        <option key={u._id} value={u._id}>
-          {u.name}
-        </option>
-      ))}
-    </select>
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{ fontSize: "13px", color: "#374151", fontWeight: "600" }}>
+        Assign User
+      </label>
+      <select
+        style={{
+          ...styles.input,
+          marginTop: "6px",
+          borderRadius: "12px",
+          padding: "14px",
+          background: taskForm.eventId ? "#fff" : "#f3f4f6",
+          cursor: taskForm.eventId ? "pointer" : "not-allowed",
+        }}
+        value={taskForm.assignedTo}
+        disabled={!taskForm.eventId}
+        onChange={(e) =>
+          setTaskForm({ ...taskForm, assignedTo: e.target.value })
+        }
+      >
+        <option value="">Assign User</option>
+        {filteredUsers.map((u) => (
+          <option key={u._id} value={u._id}>
+            {u.name}
+          </option>
+        ))}
+      </select>
+    </div>
 
-    {/* Info about Time */}
-    <p style={{ fontSize: "12px", color: "#6b7280", marginTop: "6px" }}>
+    {/* Info */}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "8px",
+        fontSize: "13px",
+        color: "#6b7280",
+        background: "#fee2e2",
+        padding: "10px 14px",
+        borderRadius: "10px",
+        marginBottom: "20px",
+      }}
+    >
       ⏰ Task date & time will be saved automatically.
-    </p>
+    </div>
 
     {/* Create Button */}
-    <button style={styles.button} onClick={createTask}>
-      Create Task
+    <button
+      style={{
+        background: "linear-gradient(135deg,#dc2626,#b91c1c)",
+        color: "white",
+        border: "none",
+        padding: "14px 26px",
+        borderRadius: "14px",
+        cursor: "pointer",
+        fontWeight: "600",
+        fontSize: "15px",
+        boxShadow: "0 10px 20px rgba(220,38,38,0.35)",
+        transition: "0.25s",
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = "translateY(-2px)";
+        e.target.style.boxShadow =
+          "0 14px 28px rgba(220,38,38,0.45)";
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = "translateY(0)";
+        e.target.style.boxShadow =
+          "0 10px 20px rgba(220,38,38,0.35)";
+      }}
+      onClick={createTask}
+    >
+      ➕ Create Task
     </button>
   </div>
 )}
