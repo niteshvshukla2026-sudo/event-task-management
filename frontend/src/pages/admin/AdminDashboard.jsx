@@ -132,6 +132,43 @@ const styles = {
         ? "#f59e0b"
         : "#dc2626",
   }),
+
+  menuIcon: {
+  fontSize: "22px",
+  cursor: "pointer",
+  color: "#dc2626",
+},
+
+sideMenu: {
+  position: "fixed",
+  top: 0,
+  left: "-260px",
+  width: "250px",
+  height: "100vh",
+  background: "#fff",
+  boxShadow: "2px 0 20px rgba(0,0,0,.15)",
+  transition: "0.3s",
+  padding: "20px",
+  zIndex: 9999,
+},
+
+sideMenuOpen: {
+  left: "0px",
+},
+
+menuItem: {
+  width: "100%",
+  padding: "12px 16px",
+  marginBottom: "10px",
+  borderRadius: "10px",
+  border: "1px solid #fecaca",
+  background: "#fff",
+  color: "#dc2626",
+  cursor: "pointer",
+  fontWeight: "600",
+  textAlign: "left",
+},
+
 };
 
 /* ================= CONSTANTS ================= */
@@ -164,6 +201,7 @@ const [eventFilter, setEventFilter] = useState("NEWEST");
 const [taskFilter, setTaskFilter] = useState("OLDEST");
 const [notifications, setNotifications] = useState([]);
 const [showNotifications, setShowNotifications] = useState(false);
+const [menuOpen, setMenuOpen] = useState(false);
 
 
 
@@ -398,11 +436,21 @@ useEffect(() => {
           alignItems: "center",
         }}
       >
-        {/* LEFT : LOGO */}
-        <div>
-          <div style={styles.logo}>triptadka</div>
-          <div style={styles.subtitle}>Admin Dashboard</div>
-        </div>
+       {/* LEFT : MENU + LOGO */}
+<div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+  <div
+    style={styles.menuIcon}
+    onClick={() => setMenuOpen(!menuOpen)}
+  >
+    ☰
+  </div>
+
+  <div>
+    <div style={styles.logo}>triptadka</div>
+    <div style={styles.subtitle}>Admin Dashboard</div>
+  </div>
+</div>
+
 
         {/* RIGHT : NOTIFICATION + LOGOUT */}
         <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
@@ -519,28 +567,34 @@ useEffect(() => {
     </div>
 
     {/* ================= TABS ================= */}
-    <div style={styles.tabs}>
-      {visibleTabs.map((t) => (
-        <button
-          key={t}
-          style={{
-            ...styles.tab,
-            ...(activeTab === t ? styles.tabActive : {}),
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.transform = "translateY(-3px)";
-            e.target.style.boxShadow = "0 8px 20px rgba(220,38,38,0.25)";
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.transform = "translateY(0)";
-            e.target.style.boxShadow = "none";
-          }}
-          onClick={() => setActiveTab(t)}
-        >
-          {t}
-        </button>
-      ))}
-    </div>
+   {/* ================= SIDE MENU ================= */}
+<div
+  style={{
+    ...styles.sideMenu,
+    ...(menuOpen ? styles.sideMenuOpen : {}),
+  }}
+>
+  {visibleTabs.map((t) => (
+    <button
+      key={t}
+      style={{
+        ...styles.menuItem,
+        background:
+          activeTab === t
+            ? "linear-gradient(90deg,#dc2626,#b91c1c)"
+            : "#fff",
+        color: activeTab === t ? "#fff" : "#dc2626",
+      }}
+      onClick={() => {
+        setActiveTab(t);
+        setMenuOpen(false); // click ke baad menu band
+      }}
+    >
+      {t}
+    </button>
+  ))}
+</div>
+
 
     {error && <div style={styles.error}>{error}</div>}
 
