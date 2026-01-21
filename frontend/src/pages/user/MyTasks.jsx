@@ -337,21 +337,25 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
         )}
       </div>
 
-      {showNotifications && (
-        <div
-          style={{
-            position: "absolute",
-            right: 0,
-            top: "30px",
-            width: "300px",
-            background: "white",
-            boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-            borderRadius: "10px",
-            zIndex: 999,
-            maxHeight: "300px",
-            overflowY: "auto",
-          }}
-        >
+     {showNotifications && (
+  <div
+    style={{
+      position: "fixed",
+      top: "80px",
+      left: "10px",
+      right: "10px",
+      maxWidth: "360px",
+      margin: "0 auto",
+      background: "white",
+      boxShadow: "0 15px 40px rgba(0,0,0,0.25)",
+      borderRadius: "14px",
+      zIndex: 9999,
+      maxHeight: "65vh",
+      overflowY: "auto",
+      paddingBottom: "6px",
+    }}
+  >
+
           {notifications.length === 0 ? (
             <p style={{ padding: "10px" }}>No notifications</p>
           ) : (
@@ -362,12 +366,14 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
                   await API.put(`/notifications/${n._id}/read`);
                   loadNotifications();
                 }}
-                style={{
-                  padding: "10px",
-                  borderBottom: "1px solid #eee",
-                  background: n.isRead ? "#fff" : "#ffe4e6",
-                  cursor: "pointer",
-                }}
+              style={{
+  padding: "12px",
+  borderBottom: "1px solid #f1f1f1",
+  background: n.isRead ? "#fff" : "#ffe4e6",
+  cursor: "pointer",
+  transition: "0.2s",
+}}
+
               >
                 <div style={{ fontSize: "14px" }}>{n.message}</div>
                 <div style={{ fontSize: "11px", color: "#777" }}>
