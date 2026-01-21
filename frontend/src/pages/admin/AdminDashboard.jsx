@@ -445,20 +445,22 @@ useEffect(() => {
 {showNotifications && (
   <div
     style={{
-      position: "absolute",
-      top: "40px",
-      right: "0",
-      left: "auto",
-      width: "90vw",          // 🔥 mobile friendly
-      maxWidth: "320px",     // desktop pe control
+      position: "fixed",           // 🔥 absolute → fixed
+      top: "70px",
+      right: "10px",
+      left: "10px",                // 🔥 mobile me full width
+      maxWidth: "360px",           // 🔥 tablet/desktop ke liye limit
+      margin: "0 auto",
       background: "white",
-      boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+      boxShadow: "0 15px 40px rgba(0,0,0,0.25)",
       borderRadius: "12px",
-      zIndex: 1000,
-      maxHeight: "300px",
+      zIndex: 9999,
+      maxHeight: "60vh",
       overflowY: "auto",
-      transform: "translateX(-20%)", // 🔥 thoda andar khiska dega
+      animation: "fadeIn 0.2s ease"
     }}
+  
+
   >
 
                 {notifications.length === 0 ? (
