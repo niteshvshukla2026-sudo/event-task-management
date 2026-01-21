@@ -20,6 +20,7 @@ const styles = {
     background: "linear-gradient(135deg,#fff1f2,#ffe4e6,#ffffff)",
     padding: "24px",
     fontFamily: "Inter, system-ui",
+     overflowX: "hidden",
   },
 
   header: {
@@ -142,7 +143,7 @@ const styles = {
 sideMenu: {
   position: "fixed",
   top: 0,
-  left: "-260px",
+   left: "-300px",
   width: "250px",
   height: "100vh",
   background: "#fff",
@@ -436,6 +437,20 @@ useEffect(() => {
           alignItems: "center",
         }}
       >
+
+
+        {menuOpen && (
+  <div
+    onClick={() => setMenuOpen(false)}
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.25)",
+      zIndex: 10000,
+    }}
+  />
+)}
+
        {/* LEFT : MENU + LOGO */}
 <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
   <div
