@@ -336,54 +336,71 @@ const unreadCount = notifications.filter(n => !n.isRead).length;
           </span>
         )}
       </div>
+{showNotifications && (
+  <>
+    {/* Overlay */}
+    <div
+      onClick={() => setShowNotifications(false)}
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,0.25)",
+        zIndex: 9998,
+      }}
+    />
 
-     {showNotifications && (
-  <div
-    style={{
-      position: "fixed",
-      top: "80px",
-      left: "10px",
-      right: "10px",
-      maxWidth: "360px",
-      margin: "0 auto",
-      background: "white",
-      boxShadow: "0 15px 40px rgba(0,0,0,0.25)",
-      borderRadius: "14px",
-      zIndex: 9999,
-      maxHeight: "65vh",
-      overflowY: "auto",
-      paddingBottom: "6px",
-    }}
-  >
-
-          {notifications.length === 0 ? (
-            <p style={{ padding: "10px" }}>No notifications</p>
-          ) : (
-            notifications.map((n) => (
-              <div
-                key={n._id}
-                onClick={async () => {
-                  await API.put(`/notifications/${n._id}/read`);
-                  loadNotifications();
-                }}
-              style={{
-  padding: "12px",
-  borderBottom: "1px solid #f1f1f1",
-  background: n.isRead ? "#fff" : "#ffe4e6",
-  cursor: "pointer",
-  transition: "0.2s",
-}}
-
-              >
-                <div style={{ fontSize: "14px" }}>{n.message}</div>
-                <div style={{ fontSize: "11px", color: "#777" }}>
-                  {formatDate(n.createdAt)}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+    {/* Notification Box */}
+    <div
+      style={{
+        position: "fixed",
+        top: "90px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "90%",
+        maxWidth: "360px",
+        background: "white",
+        boxShadow: "0 15px 40px rgba(0,0,0,0.3)",
+        borderRadius: "16px",
+        zIndex: 9999,
+        maxHeight: "65vh",
+        overflowY: "auto",
+        paddingBottom: "6px",
+      }}
+    >
+      {notifications.length === 0 ? (
+        <p style={{ padding: "12px", textAlign: "center" }}>
+          No notifications
+        </p>
+      ) : (
+        notifications.map((n) => (
+          <div
+            key={n._id}
+            onClick={async () => {
+              await API.put(`/notifications/${n._id}/read`);
+              loadNotifications();
+              setShowNotifications(false);
+            }}
+            style={{
+              padding: "12px",
+              borderBottom: "1px solid #f1f1f1",
+              background: n.isRead ? "#fff" : "#ffe4e6",
+              cursor: "pointer",
+              transition: "0.2s",
+            }}
+          >
+            <div style={{ fontSize: "14px", fontWeight: "600" }}>
+              {n.message}
+            </div>
+            <div style={{ fontSize: "11px", color: "#777" }}>
+              {formatDate(n.createdAt)}
+            </div>
+          </div>
+        ))
       )}
+    </div>
+  </>
+)}
+
     </div>
 
     {/* Logout */}
