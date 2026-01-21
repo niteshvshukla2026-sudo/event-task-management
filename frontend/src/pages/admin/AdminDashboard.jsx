@@ -150,7 +150,7 @@ sideMenu: {
   boxShadow: "2px 0 20px rgba(0,0,0,.15)",
   transition: "0.3s",
   padding: "20px",
-  zIndex: 9999,
+   zIndex: 10002,
 },
 
 sideMenuOpen: {
@@ -439,18 +439,6 @@ useEffect(() => {
       >
 
 
-        {menuOpen && (
-  <div
-    onClick={() => setMenuOpen(false)}
-    style={{
-      position: "fixed",
-      inset: 0,
-      background: "rgba(0,0,0,0.25)",
-      zIndex: 10000,
-    }}
-  />
-)}
-
        {/* LEFT : MENU + LOGO */}
 <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
   <div
@@ -465,6 +453,18 @@ useEffect(() => {
     <div style={styles.subtitle}>Admin Dashboard</div>
   </div>
 </div>
+
+   {menuOpen && (
+  <div
+    onClick={() => setMenuOpen(false)}
+    style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(0,0,0,0.25)",
+      zIndex: 10000,   // 🔽 menu se kam
+    }}
+  />
+)}
 
 
         {/* RIGHT : NOTIFICATION + LOGOUT */}
