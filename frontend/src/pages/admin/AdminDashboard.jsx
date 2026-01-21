@@ -442,22 +442,25 @@ useEffect(() => {
                 </span>
               )}
             </div>
+{showNotifications && (
+  <div
+    style={{
+      position: "absolute",
+      top: "40px",
+      right: "0",
+      left: "auto",
+      width: "90vw",          // 🔥 mobile friendly
+      maxWidth: "320px",     // desktop pe control
+      background: "white",
+      boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+      borderRadius: "12px",
+      zIndex: 1000,
+      maxHeight: "300px",
+      overflowY: "auto",
+      transform: "translateX(-20%)", // 🔥 thoda andar khiska dega
+    }}
+  >
 
-            {showNotifications && (
-              <div
-                style={{
-                  position: "absolute",
-                  right: 0,
-                  top: "50px",
-                  width: "320px",
-                  background: "white",
-                  boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
-                  borderRadius: "12px",
-                  zIndex: 1000,
-                  maxHeight: "320px",
-                  overflowY: "auto",
-                }}
-              >
                 {notifications.length === 0 ? (
                   <p style={{ padding: "14px", color: "#6b7280" }}>
                     No notifications
@@ -472,13 +475,13 @@ useEffect(() => {
                         loadNotifications();
                         setShowNotifications(false);
                       }}
-                      style={{
-                        padding: "12px",
-                        borderBottom: "1px solid #f3f4f6",
-                        background: n.isRead ? "#ffffff" : "#ffe4e6",
-                        cursor: "pointer",
-                        transition: "0.2s",
-                      }}
+                     style={{
+      padding: "12px",
+      borderBottom: "1px solid #f1f1f1",
+      background: n.isRead ? "#fff" : "#ffe4e6",
+      cursor: "pointer",
+      transition: "0.2s",
+    }}
                     >
                       <div style={{ fontSize: "14px", fontWeight: "500" }}>
                         {n.message}
